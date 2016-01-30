@@ -1,4 +1,3 @@
-
 #include <stdio.h>
 #include <ctype.h>
 
@@ -9,6 +8,14 @@ void reservation();
 void tarifs();
 void annulation();
 void administration();
+
+void sauvegarder();
+void enregistrer();
+void affichage();
+void paiement();
+void saisie();
+int recherchemultiocc(char nomrech[T_MAX_NOM], int tabres[]) ;
+
 
 /*-----------------------------------------*/
 main()
