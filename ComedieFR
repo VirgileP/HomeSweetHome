@@ -4,8 +4,12 @@
 
 /*----------Declaration preliminaire-------------------------------*/
 
-void saisie();
-void affichage();
+void programation();
+void reservation();
+void tarifs();
+void annulation();
+void administration();
+
 /*-----------------------------------------*/
 main()
 {
@@ -13,18 +17,27 @@ main()
 	
 	while (choix != 0)
 	{
-		printf("-1- Saisie\n")		;
-		printf("-2- Affichage\n")	;
+		printf("-1- Programation\n");
+		printf("-2- Réservation\n")	;
+		printf("-3- Tarifs\n")		;
+		printf("-4- Annulation\n")	; //à valider?
+		printf("-5- Administration\n");	//login mdp			
 		printf("-0- Quitter\n")		;
 		printf("Choix : ")			;
 		scanf("%d",&choix)			;
 		
 		switch(choix)
 		{
-			case 1: saisie();
+			case 1: programation();
 					break	;
-			case 2: affichage()	;
+			case 2: reservation()	;
 					break		;
+			case 3: tarifs()	;
+					break	;
+			case 4: annulation()	;
+					break	;
+			case 5: administration();
+					break;
 			case 0: printf("Au revoir")	;
 					break				;
 			default : printf("Erreur de saisie\n")	;
@@ -35,13 +48,31 @@ main()
 }
 
 /*-----------------------------------------*/
-void saisie()
+void programation()
 {
-	printf("Saisie....");
+	printf("Programmation....");
 }
 /*-----------------------------------------*/
-void affichage()
+void reservation()
 {
-	printf("Affichage....");
+	printf("Réservation....");
 }
 /*-----------------------------------------*/
+void tarifs()
+{
+	printf("Tarifs....");
+}
+/*-----------------------------------------*/
+void annulation()
+{
+	printf("Annulation....");
+}
+/*-----------------------------------------*/
+void administration()
+{
+	printf("Administration....");
+}
+/*-----------------------------------------*/
+
+
+
