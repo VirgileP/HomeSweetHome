@@ -1,0 +1,32 @@
+I.	Fondement du projet
+  1.	But du projet
+  2.	Personne et organisme impliqués dans les enjeux du projet
+  3.	Utilisateur du produit
+II.	Contraintes sur le projet
+  1.	Contraintes non négociables
+  2.	Glossaire et convention de dénomination
+  3.	Faits et hypothèses utiles
+III.	Exigences fonctionnelles
+  1.	Portée du travail
+  2.	Portée du produit (Cas d’utilisation)
+  3.	Exigences fonctionnelles et exigences sur les données
+IV.	Exigences non fonctionnelles
+  1.	Ergonomie et convivialité du produit
+  2.	Facilité d’utilisation et facteurs humain
+  3.	Fonctionnement du produit
+  4.	Adéquation du produit avec son environnement
+  5.	Maintenance, support, portabilité, installation du produit
+  6.	Sécurité
+  7.	Exigences culturelle et politiques
+  8.	Lois et standards influençant le produit
+V.	Autres aspects du projet
+  1.	Questions sans réponse
+  2.	« COSTS » : Progiciel ou composants commerciaux
+  3.	Nouveaux problèmes, créés par l’apparition du nouveau système
+  4.	Tâches à faire pour livrer le système
+  5.	Contrôle final de qualité sur site (Cutover)
+  6.	Risques liés au projet
+  7.	Estimation des coûts du projet
+  8.	Manuel utilisateur et formations
+  9.	Salle d’attente : idées pour les futures versions
+  10.	Idées de solutions
