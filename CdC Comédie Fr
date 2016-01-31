@@ -1,11 +1,31 @@
 I.	Fondement du projet
-  1.	But du projet
-  2.	Personne et organisme impliqués dans les enjeux du projet
-  3.	Utilisateur du produit
+  1. Contexte du Projet
+    a. Bref historique - Tim
+    b. Descritpion du contexte actuel - Vi
+  2.	But du projet
+    a. Problème de l'utilisateur ou contexte du projet - Tim
+    b. Objectifs du projet - Vi
+  3.	Personne et organisme impliqués dans les enjeux du projet
+    a. Maître d'ouvrage - Tim
+    b. Acheteur - Vi
+"Personne ou organisation qui achètera le produit (au maître d’ouvrage). Il se peut que la même personne ou organisation joue à 
+la fois les rôles de maître d’ouvrage, d’acheteur et parfois d’utilisateur. Dans le cas où les « acheteurs » seraient internes, 
+ils ne paieraient pas réellement le produit mais ils soutiennent le produit parce que celui-ci répond à leurs besoins."
+
+    c. Autre parties prenantes - Tim
+"Une partie prenante est une personne ou un organisme qui a des exigences concernant le produit ou sur lequel le résultat ou la
+réussite du projet a un impact."
+
+  4.	Utilisateur du produit
+    a. Utilisateur directs du produits - Vi
+    b. Priorité assignée aux utilisateurs - Tim
+    c. Implication nécessaire de la part des utilisateurs dans le projet - Vi
+    d. Utilisateurs concernés par les opérations de maintenance du produit - Tim
 II.	Contraintes sur le projet
-  1.	Contraintes non négociables
-  2.	Glossaire et convention de dénomination
-  3.	Faits et hypothèses utiles
+  1.	Contraintes non négociables - Vi
+    ##note: attention, placement pour Richelieu + Viaux-Colombier (ajouter plan en annexe)
+  2.	Glossaire et convention de dénomination - Tim + Vi
+  3.	Faits et hypothèses utiles - Tim + Vi
 III.	Exigences fonctionnelles
   1.	Portée du travail
   2.	Portée du produit (Cas d’utilisation)
