@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <ctype.h>
+#include <string.h>
 
 #define MAX_CLIENT 500
 
@@ -29,15 +30,37 @@ void saisie();
 /* type global */
 struct client
     {
+      char 	titre[10]				;
       char	nom[T_MAX_NOM]      ;
       char	prenom[T_MAX_PRENOM];
-      int	numabo                ;
+      char  adresse[10]			;
+      int	codePostal			;
+      char	ville[10]				;
+      char	pays[10]				;
+      int	telephone			;
+      int	numabo              ;
     };
 
-/* variables globales */
-struct client tabclient[MAX_CLIENT] ;
-int nbclient=0                  ;
+struct spectacle
+{
+	char nom[200]					;
+	//char salle[10]				; // struct theatre.nom?
+	char auteur[10]				;
+	char M_en_scene[10]			;
+	char date_debut[10]			;
+	char date_fin[10]				;
+};
 
+struct theatre
+{
+	char nom[10]					;
+	char adresse[10]				;
+	char categorie[10]			;
+	char sous_categorie[10]		;
+};
+/* variables globales */
+struct spectacle tab_program[200]	;
+int nbspectales	= 60				;
 
 
 /*-----------------------------------------*/
@@ -47,9 +70,9 @@ main()
 	
 	while (choix != 0)
 	{
-		printf("-------------------\n");
-		printf("Comédie Française\n");
-		printf("--------------------\n\n");
+		printf("+-----------------+\n");
+		printf("|Comédie Française|\n");
+		printf("+-----------------+\n\n");
 		
 		printf("-1- Programation\n");
 		printf("-2- Réservation\n")	;
@@ -62,7 +85,7 @@ main()
 		
 		switch(choix)
 		{
-			case 1: programation();
+			case 1: affichage();
 					break	;
 			case 2: reservation()	;
 					break		;
@@ -85,14 +108,45 @@ main()
 /*-----------------------------------------*/
 void affichage()
 {
-	printf("Affichage.......\n");
+	struct spectacle representation ;
+	FILE *f1                        ;
+	int i							;
+ 	
+ 	printf("Affichage test.......\n");
+    
+	f1=fopen("spectacle.txt","r");
+    for ( i=0; i< nbspectacles; i++)
+    {
+    	fscanf(f1, "%s", representation.nom);
+    	strcpy(tab_program[i].nom,representation.nom);
+    	printf("%s\n", tab_program[i]);
+	}
+	
+	fclose(f1);
 
 }
 /*-----------------------------------------*/
-void programation()
+/*void programation()
 {
-	printf("Programmation....\n");
-}
+ struct spectacle representation ;
+ int i = 0, retour                ;
+ FILE *f1                         ;
+ 
+ f1=fopen("spectacle.txt","r");
+ while ( ! feof(f1) )
+ {
+   retour = fscanf(f1,"%s", representation.nom);
+   if (retour != EOF)
+   {
+     //conv_maj(representation.nom);
+     tab_program[i++] = representation ;
+   }
+ }
+ fclose(f1);
+ nbspectales = i ;
+ printf("%d speactacle(s) lu(s)\n",nbspectales);
+	
+}*/
 /*-----------------------------------------*/
 void reservation()
 {
@@ -114,6 +168,3 @@ void administration()
 	printf("Administration...\n.");
 }
 /*-----------------------------------------*/
-
-
-
