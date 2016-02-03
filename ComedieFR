@@ -1,7 +1,14 @@
 #include <stdio.h>
 #include <ctype.h>
 
+#define MAX_CLIENT 500
+
+#define T_MAX_NOM 10
+#define T_MAX_PRENOM 10
+
 /*----------Declaration preliminaire-------------------------------*/
+
+void affichage();
 
 void programation();
 void reservation();
@@ -14,7 +21,23 @@ void enregistrer();
 void affichage();
 void paiement();
 void saisie();
-int recherchemultiocc(char nomrech[T_MAX_NOM], int tabres[]) ;
+//int recherchemultiocc(char nomrech[T_MAX_NOM], int tabres[]) ;
+
+
+/*-----------------------------------------*/
+
+/* type global */
+struct client
+    {
+      char	nom[T_MAX_NOM]      ;
+      char	prenom[T_MAX_PRENOM];
+      int	numabo                ;
+    };
+
+/* variables globales */
+struct client tabclient[MAX_CLIENT] ;
+int nbclient=0                  ;
+
 
 
 /*-----------------------------------------*/
@@ -24,6 +47,10 @@ main()
 	
 	while (choix != 0)
 	{
+		printf("-------------------\n");
+		printf("Comédie Française\n");
+		printf("--------------------\n\n");
+		
 		printf("-1- Programation\n");
 		printf("-2- Réservation\n")	;
 		printf("-3- Tarifs\n")		;
@@ -54,33 +81,39 @@ main()
 	}
 }
 
+
+/*-----------------------------------------*/
+void affichage()
+{
+	printf("Affichage.......\n");
+
+}
 /*-----------------------------------------*/
 void programation()
 {
-	printf("Programmation....");
+	printf("Programmation....\n");
 }
 /*-----------------------------------------*/
 void reservation()
 {
-	printf("Réservation....");
+	printf("Réservation....\n");
 }
 /*-----------------------------------------*/
 void tarifs()
 {
-	printf("Tarifs....");
+	printf("Tarifs....\n");
 }
 /*-----------------------------------------*/
 void annulation()
 {
-	printf("Annulation....");
+	printf("Annulation....\n");
 }
 /*-----------------------------------------*/
 void administration()
 {
-	printf("Administration....");
+	printf("Administration...\n.");
 }
 /*-----------------------------------------*/
 
 
 
-<>
