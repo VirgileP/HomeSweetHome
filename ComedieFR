@@ -126,9 +126,9 @@ void affichage()
 
 }
 /*-----------------------------------------*/
-/*void programation()
+void programation()
 {
- struct spectacle representation ;
+ /*struct spectacle representation ;
  int i = 0, retour                ;
  FILE *f1                         ;
  
@@ -145,8 +145,8 @@ void affichage()
  fclose(f1);
  nbspectales = i ;
  printf("%d speactacle(s) lu(s)\n",nbspectales);
-	
-}*/
+*/	
+}
 /*-----------------------------------------*/
 void reservation()
 {
