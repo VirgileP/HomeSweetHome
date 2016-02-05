@@ -20,6 +20,9 @@ void selection_theatre();
 void affichage_Richelieu();
 void affichage_Colombier();
 void affichage_Studio();
+void categorieA();
+void categorieB();
+void categorieC();
 void sauvegarder();
 void enregistrer();
 void paiement();
@@ -382,13 +385,3 @@ void conv_aff(char tab[])
 	for (i=1; i<taille; i++)
 	{
 		if(tab[i] == '_')
-		{
-			tab[i] = ' ';
-		}
-		else
-		{
-		tab[i] = tolower(tab[i]);
-		}
-		
-	}
-}
