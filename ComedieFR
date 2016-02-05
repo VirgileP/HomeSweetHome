@@ -14,14 +14,18 @@ void affichage();
 void programation();
 void reservation();
 void tarifs();
-void annulation();
 void administration();
 
+void selection_theatre();
+void affichage_Richelieu();
+void affichage_Colombier();
+void affichage_Studio();
 void sauvegarder();
 void enregistrer();
-void affichage();
 void paiement();
 void saisie();
+void conv_aff();
+void conv_maj();
 //int recherchemultiocc(char nomrech[T_MAX_NOM], int tabres[]) ;
 
 
@@ -44,7 +48,6 @@ struct client
 struct spectacle
 {
 	char nom[200]					;
-	//char salle[10]				; // struct theatre.nom?
 	char auteur[10]				;
 	char M_en_scene[10]			;
 	char date_debut[10]			;
@@ -78,24 +81,24 @@ main()
 		printf("-2- Réservation\n")	;
 		printf("-3- Tarifs\n")		;
 		printf("-4- Annulation\n")	; //à valider?
-		printf("-5- Administration\n");	//login mdp			
+		printf("-5- Administration\n")	;				
 		printf("-0- Quitter\n")		;
 		printf("Choix : ")			;
 		scanf("%d",&choix)			;
 		
 		switch(choix)
 		{
-			case 1: affichage();
+			case 1: selection_theatre();
 					break	;
 			case 2: reservation()	;
 					break		;
 			case 3: tarifs()	;
 					break	;
-			case 4: annulation()	;
+			case 4: printf("annulation");
 					break	;
 			case 5: administration();
 					break;
-			case 0: printf("Au revoir")	;
+			case 0: printf("Au revoir\n")	;
 					break				;
 			default : printf("Erreur de saisie\n")	;
 					break							;
@@ -103,6 +106,137 @@ main()
 		
 	}
 }
+
+
+/*--------------Selection théâtre------------------*/
+void selection_theatre()
+{
+	int choix = -1;
+	while(choix != 0)
+	{
+		printf("+------------+\n");
+		printf("|Les Theatres|\n");
+		printf("+------------+\n\n");
+		
+		printf("-1- Salle Richelieu\n");
+		printf("-2- Theatre du Vieux-Colombier\n");
+		printf("-3- Studio-Theatre\n");
+		printf("-0- Retour au menu\n");
+		printf("Selectionnez votre salle : ");
+		scanf("%d", &choix);
+		
+		switch(choix)
+		{
+			case 1: affichage_Richelieu();
+					break;
+			case 2: affichage_Colombier();
+					break;
+			case 3: affichage_Studio();
+					break;
+			case 0: main();
+					break;
+			default : printf("Erreur de saisie\n");
+					break;
+			
+		}
+		
+	}
+}
+
+
+/*-----------affiche la liste complète des spectales par théâtre------------------------------*/
+void affichage_Richelieu()
+{
+	struct spectacle representation ;
+	FILE *f1                        ;
+	int i=0							;
+ 	
+ 	printf("Affichage test.......\n");
+    
+	f1=fopen("richelieu.txt","r");
+	while(! feof(f1))
+    {
+    	fscanf(f1, "%s %s %s %s %s", representation.nom, representation.auteur, representation.M_en_scene, representation.date_debut, representation.date_fin);
+    	strcpy(tab_program[i].nom,representation.nom)				;
+		strcpy(tab_program[i].auteur,representation.auteur)			;
+		strcpy(tab_program[i].M_en_scene, representation.M_en_scene);
+		strcpy(tab_program[i].date_debut,representation.date_debut)	;
+		strcpy(tab_program[i].date_fin,representation.date_fin)		;    
+		conv_aff(tab_program[i].nom)		;	 
+		conv_aff(tab_program[i].auteur)		;
+		conv_aff(tab_program[i].M_en_scene);
+    	printf("nom de la piece : %s\n", tab_program[i].nom)			; 
+    	printf("nom de l'auteur : %s\n", tab_program[i].auteur)	  		; 
+    	printf("nom metteur en scene : %s\n", tab_program[i].M_en_scene);
+    	printf("nom date de début : %s\n", tab_program[i].date_debut)	;
+    	printf("nom date de fin : %s\n\n", tab_program[i].date_fin)  	;
+    	
+	}
+	
+	fclose(f1);
+
+}
+
+void affichage_Colombier()
+{
+	struct spectacle representation ;
+	FILE *f1                        ;
+	int i=0							;
+ 	
+ 	printf("Affichage test.......\n");
+    
+	f1=fopen("vxcolombier.txt","r");
+	while(! feof(f1))
+    {
+    	fscanf(f1, "%s %s %s %s %s", representation.nom, representation.auteur, representation.M_en_scene, representation.date_debut, representation.date_fin);
+    	strcpy(tab_program[i].nom,representation.nom)				;
+		strcpy(tab_program[i].auteur,representation.auteur)			;
+		strcpy(tab_program[i].M_en_scene, representation.M_en_scene);
+		strcpy(tab_program[i].date_debut,representation.date_debut)	;
+		strcpy(tab_program[i].date_fin,representation.date_fin)		;    
+		conv_aff(tab_program[i].nom)		;	 
+		conv_aff(tab_program[i].auteur)		;
+		conv_aff(tab_program[i].M_en_scene);
+    	printf("nom de la piece : %s\n", tab_program[i].nom)			; 
+    	printf("nom de l'auteur : %s\n", tab_program[i].auteur)	  		; 
+    	printf("nom metteur en scene : %s\n", tab_program[i].M_en_scene);
+    	printf("nom date de début : %s\n", tab_program[i].date_debut)	;
+    	printf("nom date de fin : %s\n\n", tab_program[i].date_fin)  	;
+    	
+	}
+	
+	fclose(f1);
+
+}
+void affichage_Studio()
+{
+	struct spectacle representation ;
+	FILE *f1                        ;
+	int i=0							;
+ 	
+ 	printf("Affichage test.......\n");
+    
+	f1=fopen("studio.txt","r");
+	while(! feof(f1))
+    {
+    	fscanf(f1, "%s %s %s %s %s", representation.nom, representation.auteur, representation.M_en_scene, representation.date_debut, representation.date_fin);
+    	strcpy(tab_program[i].nom,representation.nom)				;
+		strcpy(tab_program[i].auteur,representation.auteur)			;
+		strcpy(tab_program[i].M_en_scene, representation.M_en_scene);
+		strcpy(tab_program[i].date_debut,representation.date_debut)	;
+		strcpy(tab_program[i].date_fin,representation.date_fin)		;    
+		conv_aff(tab_program[i].nom)		;	 
+		conv_aff(tab_program[i].auteur)		;
+		conv_aff(tab_program[i].M_en_scene);
+    	printf("nom de la piece : %s\n", tab_program[i].nom)			; 
+    	printf("nom de l'auteur : %s\n", tab_program[i].auteur)	  		; 
+    	printf("nom metteur en scene : %s\n", tab_program[i].M_en_scene);
+    	printf("nom date de début : %s\n", tab_program[i].date_debut)	;
+    	printf("nom date de fin : %s\n\n", tab_program[i].date_fin)  	;
+    	
+	}
+	
+	fclose(f1);
 
 
 /*-----------------------------------------*/
@@ -128,24 +262,7 @@ void affichage()
 /*-----------------------------------------*/
 void programation()
 {
- /*struct spectacle representation ;
- int i = 0, retour                ;
- FILE *f1                         ;
- 
- f1=fopen("spectacle.txt","r");
- while ( ! feof(f1) )
- {
-   retour = fscanf(f1,"%s", representation.nom);
-   if (retour != EOF)
-   {
-     //conv_maj(representation.nom);
-     tab_program[i++] = representation ;
-   }
- }
- fclose(f1);
- nbspectales = i ;
- printf("%d speactacle(s) lu(s)\n",nbspectales);
-*/	
+ 	
 }
 /*-----------------------------------------*/
 void reservation()
@@ -158,13 +275,120 @@ void tarifs()
 	printf("Tarifs....\n");
 }
 /*-----------------------------------------*/
-void annulation()
-{
-	printf("Annulation....\n");
-}
-/*-----------------------------------------*/
 void administration()
 {
-	printf("Administration...\n.");
+	//bandeau d'accueil
+	printf("+----------------------------------+\n")	;
+	printf("|Comédie Française - Administration|\n")	;
+	printf("+----------------------------------+\n\n")	;
+	
+	//déclaration des variables utilisées pour l'authentification
+	char login_saisi[20]					;
+	char login_verif[20]="ADMIN"				;
+	char mdp_saisi[8]					;
+	char mdp_verif [8]="BONJOUR"				;
+	int reponse=0						;
+	int test,test2,i					;
+
+	//saisie du login et du mot de passe pour accéder à l'interface administrateur
+	
+	// Premier Essai pour la saisie du  login
+	printf("Entrez votre login : ");
+	scanf("%s",login_saisi);
+	
+	conv_maj(login_saisi);
+	test = strcmp(login_saisi, login_verif);
+		
+		//Deuxième essai pour la saisie du login
+		if (test != 0)
+		{
+		printf("Erreur d'authentification\n");
+		printf("Recommencer la saisie du login : ");
+		scanf("%s",login_saisi);
+		conv_maj(login_saisi);
+
+		test = strcmp(login_saisi, login_verif);
+			
+			//Au bout de deux erreurs sur le login, retour au menu principal
+			if(test !=0)
+			{
+			printf("\nAccès Interdit.\n");
+			printf("Vous allez être redirigé vers le menu d'accueil.\n\n");
+			}
+		}
+	
+	//Premier essai pour la saisie du mot de passe
+	if( test == 0)
+	{
+	printf("Entrez votre mot de passe : ");
+	scanf("%s", mdp_saisi);
+	conv_maj(mdp_saisi);
+			
+	test2 = strcmp(mdp_saisi, mdp_verif);
+	}
+		//Deuxième essai pour la saisie du mot de passe
+		if (test2 != 0)
+		{
+		printf("Erreur d'authentification.\n");
+		printf("Recommencer la saisie du mot de passe : ");
+		scanf("%s",mdp_saisi);
+	
+		conv_maj(mdp_saisi);
+		
+		test2 = strcmp(mdp_saisi, mdp_verif);
+			
+			//Au bout de deux erreurs sur le login, retour au menu principal
+			if(test2 !=0)
+			{
+			printf("\nAccès Interdit.\n");
+			printf("Vous allez être redirigé vers le menu d'accueil.\n\n");
+			}
+		}	
+				
+		
+	//L'authentification réussie donne accès à la partie administration du logiciel
+	if ((test == 0)&&(test2 == 0))
+		{
+		printf("\nWelcome + voids dédiés\n");
+		}
 }
 /*-----------------------------------------*/
+/*------convertisseurs_entree_fichier-----------------------------------*/
+void conv_maj(char tab[])
+{
+  int i, taille ;
+  
+  taille = strlen(tab);
+  for (i=0 ; i< taille ; i++)
+  {
+  	if(tab[i] == ' ')
+  	{
+  		tab[i] = '_';
+	}
+	else
+	{
+		tab[i] = toupper(tab[i]);
+	}
+    
+  }
+}
+
+/*------convertisseur_affichae_fichier--------------------*/
+void conv_aff(char tab[])
+{
+	int i, taille;
+	
+	taille = strlen(tab);
+	for (i=1; i<taille; i++)
+	{
+		if(tab[i] == '_')
+		{
+			tab[i] = ' ';
+		}
+		else
+		{
+		tab[i] = tolower(tab[i]);
+		}
+		
+	}
+}
