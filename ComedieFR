@@ -81,7 +81,7 @@ main()
 		printf("-2- Réservation\n")	;
 		printf("-3- Tarifs\n")		;
 		printf("-4- Annulation\n")	; //à valider?
-		printf("-5- Administration\n");	//login mdp			
+		printf("-5- Administration\n")	;				
 		printf("-0- Quitter\n")		;
 		printf("Choix : ")			;
 		scanf("%d",&choix)			;
@@ -277,7 +277,80 @@ void tarifs()
 /*-----------------------------------------*/
 void administration()
 {
-	printf("Administration...\n.");
+	//bandeau d'accueil
+	printf("+----------------------------------+\n")	;
+	printf("|Comédie Française - Administration|\n")	;
+	printf("+----------------------------------+\n\n")	;
+	
+	//déclaration des variables utilisées pour l'authentification
+	char login_saisi[20]					;
+	char login_verif[20]="ADMIN"				;
+	char mdp_saisi[8]					;
+	char mdp_verif [8]="BONJOUR"				;
+	int reponse=0						;
+	int test,test2,i					;
+
+	//saisie du login et du mot de passe pour accéder à l'interface administrateur
+	
+	// Premier Essai pour la saisie du  login
+	printf("Entrez votre login : ");
+	scanf("%s",login_saisi);
+	
+	conv_maj(login_saisi);
+	test = strcmp(login_saisi, login_verif);
+		
+		//Deuxième essai pour la saisie du login
+		if (test != 0)
+		{
+		printf("Erreur d'authentification\n");
+		printf("Recommencer la saisie du login : ");
+		scanf("%s",login_saisi);
+		conv_maj(login_saisi);
+
+		test = strcmp(login_saisi, login_verif);
+			
+			//Au bout de deux erreurs sur le login, retour au menu principal
+			if(test !=0)
+			{
+			printf("\nAccès Interdit.\n");
+			printf("Vous allez être redirigé vers le menu d'accueil.\n\n");
+			}
+		}
+	
+	//Premier essai pour la saisie du mot de passe
+	if( test == 0)
+	{
+	printf("Entrez votre mot de passe : ");
+	scanf("%s", mdp_saisi);
+	conv_maj(mdp_saisi);
+			
+	test2 = strcmp(mdp_saisi, mdp_verif);
+	}
+		//Deuxième essai pour la saisie du mot de passe
+		if (test2 != 0)
+		{
+		printf("Erreur d'authentification.\n");
+		printf("Recommencer la saisie du mot de passe : ");
+		scanf("%s",mdp_saisi);
+	
+		conv_maj(mdp_saisi);
+		
+		test2 = strcmp(mdp_saisi, mdp_verif);
+			
+			//Au bout de deux erreurs sur le login, retour au menu principal
+			if(test2 !=0)
+			{
+			printf("\nAccès Interdit.\n");
+			printf("Vous allez être redirigé vers le menu d'accueil.\n\n");
+			}
+		}	
+				
+		
+	//L'authentification réussie donne accès à la partie administration du logiciel
+	if ((test == 0)&&(test2 == 0))
+		{
+		printf("\nWelcome + voids dédiés\n");
+		}
 }
 /*-----------------------------------------*/
 /*------convertisseurs_entree_fichier-----------------------------------*/
