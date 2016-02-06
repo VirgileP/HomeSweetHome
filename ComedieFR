@@ -17,9 +17,7 @@ void tarifs();
 void administration();
 
 void selection_theatre();
-void affichage_Richelieu();
-void affichage_Colombier();
-void affichage_Studio();
+void affichage_programmation();
 void categorieA();
 void categorieB();
 void categorieC();
@@ -67,6 +65,9 @@ struct theatre
 /* variables globales */
 struct spectacle tab_program[200]	;
 int nbspectales	= 60				;
+char frichelieu[20] = "richelieu.txt";
+char fcolombier[20] = "vxcolombier.txt";
+char fstudio[20] = "studio.txt";
 
 
 /*-----------------------------------------*/
@@ -130,11 +131,11 @@ void selection_theatre()
 		
 		switch(choix)
 		{
-			case 1: affichage_Richelieu();
+			case 1: affichage_programmation(frichelieu);
 					break;
-			case 2: affichage_Colombier();
+			case 2: affichage_programmation(fcolombier);
 					break;
-			case 3: affichage_Studio();
+			case 3: affichage_programmation(fstudio);
 					break;
 			case 0: main();
 					break;
@@ -148,15 +149,15 @@ void selection_theatre()
 
 
 /*-----------affiche la liste complète des spectales par théâtre------------------------------*/
-void affichage_Richelieu()
+void affichage_programmation(char fichier[])
 {
 	struct spectacle representation ;
 	FILE *f1                        ;
 	int i=0							;
- 	
- 	printf("Affichage test.......\n");
-    
-	f1=fopen("richelieu.txt","r");
+ 	printf("+-------------+")
+ 	printf("|Programmation|\n");
+    printf("+-------------+")
+	f1=fopen(fichier,"r"); //paramètre d'appelle de la variable fichier
 	while(! feof(f1))
     {
     	fscanf(f1, "%s %s %s %s %s", representation.nom, representation.auteur, representation.M_en_scene, representation.date_debut, representation.date_fin);
@@ -177,91 +178,13 @@ void affichage_Richelieu()
 	}
 	
 	fclose(f1);
-
+	printf("Pour selectionner le spectacle ecrivez le nom de la pièce : \n");
+	//representation();
+	// -0- retour
 }
 
-void affichage_Colombier()
-{
-	struct spectacle representation ;
-	FILE *f1                        ;
-	int i=0							;
- 	
- 	printf("Affichage test.......\n");
-    
-	f1=fopen("vxcolombier.txt","r");
-	while(! feof(f1))
-    {
-    	fscanf(f1, "%s %s %s %s %s", representation.nom, representation.auteur, representation.M_en_scene, representation.date_debut, representation.date_fin);
-    	strcpy(tab_program[i].nom,representation.nom)				;
-		strcpy(tab_program[i].auteur,representation.auteur)			;
-		strcpy(tab_program[i].M_en_scene, representation.M_en_scene);
-		strcpy(tab_program[i].date_debut,representation.date_debut)	;
-		strcpy(tab_program[i].date_fin,representation.date_fin)		;    
-		conv_aff(tab_program[i].nom)		;	 
-		conv_aff(tab_program[i].auteur)		;
-		conv_aff(tab_program[i].M_en_scene);
-    	printf("nom de la piece : %s\n", tab_program[i].nom)			; 
-    	printf("nom de l'auteur : %s\n", tab_program[i].auteur)	  		; 
-    	printf("nom metteur en scene : %s\n", tab_program[i].M_en_scene);
-    	printf("nom date de début : %s\n", tab_program[i].date_debut)	;
-    	printf("nom date de fin : %s\n\n", tab_program[i].date_fin)  	;
-    	
-	}
-	
-	fclose(f1);
-
-}
-void affichage_Studio()
-{
-	struct spectacle representation ;
-	FILE *f1                        ;
-	int i=0							;
- 	
- 	printf("Affichage test.......\n");
-    
-	f1=fopen("studio.txt","r");
-	while(! feof(f1))
-    {
-    	fscanf(f1, "%s %s %s %s %s", representation.nom, representation.auteur, representation.M_en_scene, representation.date_debut, representation.date_fin);
-    	strcpy(tab_program[i].nom,representation.nom)				;
-		strcpy(tab_program[i].auteur,representation.auteur)			;
-		strcpy(tab_program[i].M_en_scene, representation.M_en_scene);
-		strcpy(tab_program[i].date_debut,representation.date_debut)	;
-		strcpy(tab_program[i].date_fin,representation.date_fin)		;    
-		conv_aff(tab_program[i].nom)		;	 
-		conv_aff(tab_program[i].auteur)		;
-		conv_aff(tab_program[i].M_en_scene);
-    	printf("nom de la piece : %s\n", tab_program[i].nom)			; 
-    	printf("nom de l'auteur : %s\n", tab_program[i].auteur)	  		; 
-    	printf("nom metteur en scene : %s\n", tab_program[i].M_en_scene);
-    	printf("nom date de début : %s\n", tab_program[i].date_debut)	;
-    	printf("nom date de fin : %s\n\n", tab_program[i].date_fin)  	;
-    	
-	}
-	
-	fclose(f1);
 
 
-/*-----------------------------------------*/
-void affichage()
-{
-	struct spectacle representation ;
-	FILE *f1                        ;
-	int i							;
- 	
- 	printf("Affichage test.......\n");
-    
-	f1=fopen("spectacle.txt","r");
-    for ( i=0; i< nbspectacles; i++)
-    {
-    	fscanf(f1, "%s", representation.nom);
-    	strcpy(tab_program[i].nom,representation.nom);
-    	printf("%s\n", tab_program[i]);
-	}
-	
-	fclose(f1);
-
-}
 /*-----------------------------------------*/
 void programation()
 {
@@ -376,7 +299,7 @@ void conv_maj(char tab[])
   }
 }
 
-/*------convertisseur_affichae_fichier--------------------*/
+/*------convertisseur_affichage_fichier--------------------*/
 void conv_aff(char tab[])
 {
 	int i, taille;
@@ -385,3 +308,14 @@ void conv_aff(char tab[])
 	for (i=1; i<taille; i++)
 	{
 		if(tab[i] == '_')
+		{
+			tab[i] = ' ';
+			i++;
+		}
+		else
+		{
+		tab[i] = tolower(tab[i]);
+		}
+		
+	}
+}
