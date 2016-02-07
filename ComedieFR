@@ -71,7 +71,7 @@ char fstudio[20] = "STUDIO";
 main()
 {
 	int choix = -1, nboccurrences = 0, i, numero	;
-	char p_recherche[T_MAX_TITRE]			;
+	char p_recherche[MAX_TITRE]			;
 	struct spectacle representation			;
 	int tabresultats[MAX_SPECTACLES]		;
 	
