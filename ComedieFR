@@ -2,8 +2,12 @@
 #include <ctype.h>
 #include <string.h>
 
+#define NON_TROUVE -1
+#define MAX_SPECTACLES 200
+
 #define MAX_PL_Rich 862
 
+#define MAX_TITRE 200
 #define T_MAX_NOM 10
 #define T_MAX_PRENOM 10
 
@@ -19,7 +23,7 @@ void recherche_placement_richelieu();
 void affiche_R();
 void conv_aff();
 void conv_maj();
-//int recherchemultiocc(char nomrech[T_MAX_NOM], int tabres[]) ;
+int recherche(char nomrech[T_MAX_TITRE], int tabres[]) ;
 
 /*----------Declaration enregistrement-------------------------------*/
 
@@ -38,7 +42,7 @@ struct client
 
 struct spectacle
 {
-	char nom[200]					;
+	char nom[T_MAX_TITRE]					;
 	char auteur[100]				;
 	char M_en_scene[200]			;
 	char date_debut[200]			;
@@ -67,7 +71,10 @@ char fstudio[20] = "STUDIO";
 /*-----------------------------------------*/
 main()
 {
-	int choix = -1;
+	int choix = -1, nboccurrences = 0, i, numero	;
+	char p_recherche[T_MAX_TITRE]			;
+	struct spectacle representation			;
+	int tabresultats[MAX_SPECTACLES]		;
 	
 	while (choix != 0)
 	{
@@ -78,7 +85,7 @@ main()
 		printf("-1- Programation\n");
 		printf("-2- Réservation\n")	;
 		printf("-3- Tarifs\n")		;
-		printf("-4- Annulation\n")	; //à valider?
+		printf("-4- Rechercher un spectacle\n")	; 
 		printf("-5- Administration\n");	//login mdp			
 		printf("-0- Quitter\n")		;
 		printf("Choix : ")			;
@@ -92,7 +99,35 @@ main()
 					break		;
 			case 3: printf("tarifs()")	;
 					break	;
-			case 4: printf("annulation");
+			case 4:if (nbspecglob == 0)
+					{
+					printf("Aucune pièce n'est actuellement disponible.\n");
+					}
+					else
+					{
+					printf("Entrez le premier mot de la pièce recherchée : ");
+					scanf("%s", p_recherche);
+					//test printf("%s", p_recherche);
+					conv_maj(p_recherche)	;
+					//printf("%s", p_recherche);
+					conv_aff(p_recherche);
+					//printf("%s", p_recherche);
+					nboccurrences = recherche(p_recherche, tabresultats);
+					if(nboccurrences == 0)
+					{
+					printf("\nAucun spectacle dont le nom commence par %s n'a été trouvé.\n",p_recherche);
+					}
+					else
+					{
+						
+						for (i = 0;i < nboccurrences;i++)
+						{
+						numero = tabresultats[i];
+						representation = tab_program[numero];
+						printf("%s %s %s %s %s\n", representation.nom, representation.auteur, representation.M_en_scene, representation.date_debut, representation.date_fin);
+						}
+					}
+					}
 					break	;
 			case 5: administration();
 					break;
@@ -154,6 +189,9 @@ void charge_la_mule()
     {
     	fscanf(f1, "%s %s %s %s %s %s", representation.nom, representation.auteur, representation.M_en_scene, representation.date_debut, representation.date_fin, representation.salle);
     	tab_program[i]=representation; 
+    		conv_aff(tab_program[i].nom)		;	  //déplacé ici pour traiter de données sous la même forme dans tout le pg
+		conv_aff(tab_program[i].auteur)		;
+		conv_aff(tab_program[i].M_en_scene)	;
 		i=i+1;
 	}
 	fclose(f1);
@@ -171,9 +209,6 @@ void affichage_programmation(char nomtheatre[])
 	{
 		if (strcmp(nomtheatre,tab_program[i].salle) == 0)
 		{
-		conv_aff(tab_program[i].nom)		;	 
-		conv_aff(tab_program[i].auteur)		;
-		conv_aff(tab_program[i].M_en_scene)	;
     	printf("nom de la piece : %s\n", tab_program[i].nom)			; //affichage_programmation()
     	printf("nom de l'auteur : %s\n", tab_program[i].auteur)	  		; 
     	printf("nom metteur en scene : %s\n", tab_program[i].M_en_scene);
@@ -242,12 +277,26 @@ void affiche_R()
     	printf("rang : %c\n", place_richelieu[i].rangpl)	;
 	}
 }
-/*-----------------------------------------*/
-
-void administration()
+/*--------------------Recherche d'une pièce par son titre----------------------*/
+int recherche(char prefixe_p_rech[T_MAX_TITRE], int tabres[])
 {
-	printf("Administration...\n.");
+	struct spectacle representation	;
+	int i, numrech = NON_TROUVE, nbocc = 0;
+	int taille_prefixe ; 
+
+	taille_prefixe = strlen(prefixe_p_rech)	;	
+	for (i = 0; i < nbspecglob ; i++)
+	{
+	representation = tab_program[i]; 
+	
+		if (strncmp(representation.nom,prefixe_p_rech,taille_prefixe) == 0)
+		{
+		tabres[nbocc++] = i;
+		}
+	}
+	return nbocc;
 }
+
 /*-----------------------------------------*/
 void administration()
 {
