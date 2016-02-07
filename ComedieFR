@@ -258,7 +258,7 @@ void affichage_place()
 	}		
 }
 /*--------------------Recherche d'une pièce par son titre----------------------*/
-int recherche(char prefixe_p_rech[T_MAX_TITRE], int tabres[])
+int recherche(char prefixe_p_rech[MAX_TITRE], int tabres[])
 {
 	struct spectacle representation	;
 	int i, numrech = NON_TROUVE, nbocc = 0;
