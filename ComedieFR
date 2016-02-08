@@ -6,6 +6,7 @@
 #define MAX_SPECTACLES 200
 
 #define MAX_PL_Rich 862
+#define MAX_CLIENT 1000
 
 #define MAX_TITRE 200
 #define T_MAX_NOM 10
@@ -20,39 +21,44 @@ void administration();
 void Mot_de_passe();
 void selection_theatre();
 void affichage_programmation();
+void menu_admin()		;
+void saisie()			;
+void annulation()		;
+int recherche(char nomrech[MAX_TITRE], int tabres[]) ;
 void conv_aff();
 void conv_maj();
-int recherche(char nomrech[T_MAX_TITRE], int tabres[]) ;
 
 /*----------Declaration enregistrement-------------------------------*/
 
 struct client
     {
       char 	titre[10]				;
-      char	nom[T_MAX_NOM]      ;
-      char	prenom[T_MAX_PRENOM];
-      char  adresse[10]			;
-      int	codePostal			;
+      char	nom[T_MAX_NOM]      			;
+      char	prenom[T_MAX_PRENOM]			;
+      int	numadresse				;
+      char  	rueadresse[15]				;
+      int	codePostal				;
       char	ville[10]				;
-      char	pays[10]				;
-      int	telephone			;
-      int	numabo              ;
+      //char	pays[10]				;
+      int	telephone				;
+      char	mail[30]				;
+      //int	numabo              			;
     };
 
 struct spectacle
 {
-	char nom[T_MAX_TITRE]					;
+	char nom[MAX_TITRE]				;
 	char auteur[100]				;
-	char M_en_scene[200]			;
-	char date_debut[200]			;
+	char M_en_scene[200]				;
+	char date_debut[200]				;
 	char date_fin[200]				;
 	char salle[400];
 };
 
 struct theatre
 {
-	char categorie				;
-	char zone[50]				;
+	char categorie[13]				;
+	char zone[50]					;
 	int numpl					;
 	char rangpl					;
 };
@@ -60,12 +66,15 @@ struct theatre
 /*----------variables globales--------------------*/
 struct spectacle tab_program[200]	;
 struct theatre place_richelieu[MAX_PL_Rich]; // +
-int nbplace_dispo=0				;
-int nbspecglob= 0; // nombre de pièces totales disponibles sur toute la comédie française
-int	nbspectheatre = 0;
-char frichelieu[20] = "RICHELIEU";
-char fcolombier[20] = "COLOMBIER";
-char fstudio[20] = "STUDIO";
+struct client tabclient[MAX_CLIENT]		;
+int nbclients = 0				;
+int nbplace_dispo = 0				;
+int nbspecglob = 0				; // nombre de pièces totales disponibles sur toute la comédie française
+int nbspectheatre = 0				;
+int nbplacetot = 0				;
+char frichelieu[20] = "RICHELIEU"		;
+char fcolombier[20] = "COLOMBIER"		;
+char fstudio[20] = "STUDIO"			;
 
 /*-----------------------------------------*/
 main()
@@ -107,11 +116,8 @@ main()
 					{
 					printf("Entrez le premier mot de la pièce recherchée : ");
 					scanf("%s", p_recherche);
-					//test printf("%s", p_recherche);
 					conv_maj(p_recherche)	;
-					//printf("%s", p_recherche);
 					conv_aff(p_recherche);
-					//printf("%s", p_recherche);
 					nboccurrences = recherche(p_recherche, tabresultats);
 					if(nboccurrences == 0)
 					{
@@ -358,8 +364,78 @@ void Mot_de_passe()
 	//L'authentification réussie donne accès à la partie administration du logiciel
 	if ((test == 0)&&(test2 == 0))
 		{
-		printf("\nWelcome + voids dédiés\n");
+		printf("\nAccès autorisé.\n")	;
+		menu_admin()			;
 		}
+}
+
+/*---------------Menu Administration----------------------------------------*/
+void menu_admin()
+{
+	int choix = -1;
+	while (choix!= 0)
+	{
+	//bandeau menu administration
+	printf("+----------------------------------+\n")	;
+	printf("|Comédie Française - Administration|\n")	;
+	printf("+----------------------------------+\n\n")	;
+	
+	printf("Veuillez effectuer un choix : \n")			;
+	printf("-1- Saisie\n")								;
+	printf("-2- Modification\n")						;
+	printf("-0- Quitter le menu administration\n")	;
+	printf("Choix : ")									;
+	scanf("%d",&choix)									;		
+			switch (choix)
+			{
+				case 1:	saisie()						;	
+					break								;
+				case 2: annulation()						;
+				case 0:	printf("Retour au menu général\n");
+						printf("Au revoir\n")			;
+					break								;
+			}		
+	}
+}
+
+/*--------------------Saisie----------------------------*/
+void saisie()
+{
+	struct client acheteur	;
+	int i = nbclients 		;
+
+	acheteur.nom[0] = '\0'	;//strcpy(acheteur.nom," ");
+	
+	while (strcmp(acheteur.nom,"FIN") != 0)
+	{
+	printf("Entrez votre nom (fin pour terminer) : ");
+	scanf("%s", acheteur.nom);
+	conv_maj(acheteur.nom);
+		if (strcmp(acheteur.nom,"FIN") != 0)
+		{
+		printf("Entrez votre prénom : ");
+		scanf("%s", acheteur.prenom);	
+		printf("Entrez votre numéro d'adresse (ex : 83) : "); //diviser en numéro, rue, ...?
+		scanf("%d", &acheteur.numadresse);
+		printf("Entrez votre nom de rue (ex : montorgueil) : ");
+		scanf("%s", acheteur.rueadresse);
+		printf("Entrez votre code postal : ");
+		scanf("%d", &acheteur.codePostal);
+		printf("Entrez votre ville : ");
+		scanf("%s", acheteur.ville);
+		printf("Entrez votre telephone : ");
+		scanf("%d", &acheteur.telephone);
+		printf("Entrez votre mail : ");
+		scanf("%s", acheteur.mail);
+		tabclient[i++] = acheteur ;
+		}	
+	}
+	nbclients = i		;
+}
+/*--------------------Annulation------------------------*/
+void annulation()
+{
+printf("Annulation par le guichet ....\n")	;
 }
 
 /*------convertisseurs_entree_fichier-----------------------------------*/
