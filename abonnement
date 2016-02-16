@@ -3,23 +3,29 @@ int nbrepreglob =0; // total de toutes les representation de toutes les pièces
 ET CHANGER DANS CHARGE LA MULE nbspecglob par NBREPREGLOB
 
 
-struct abonnement{
-	struct client client;
-	struct spectacle tab_spec[MAX_ABO];
-	struct piece date[MAX_ABO];
+struct ss_abonnement{
+	struct spectacle spec;
+	struct piece date;
 	struct theatre rich;
 	struct reserv_studio studio;
+};
+
+struct abonnement{
+	struct client client;
+	struct ss_abonnement tab_ss_abo[MAX_ABO];
 };
 
 /*-----variable globale-----*/
 struct abonnement abo;
 struct abonnement tab_abonne[MAX_TITRE];
 int nbabonnement;
+struct ss_abonnement tab_ss_abo[MAX_ABO];
 
 void abonnement()
 {
-	int rep=0, rep1=0, i=0, nbspecabo=0, cpt, nbspecrepre=0, repre=0;
-	struct abonnement pabo
+	int rep = 0, rep1 = 0, i = 0, nbspecabo=0, cpt, nbspecrepre=0, repre=0, spectheatre = 0, trouve;
+	char comp[100], stock_date[100];
+	struct abonnement pabo;
 	FILE *f1;
 	struct piece date;
 	
@@ -31,15 +37,15 @@ void abonnement()
 		f1=fopen("abonne.txt","r"); //ouverture du fichier abonnnment pour renger dans le tab de strcut les abonné existant
 		while(! feof(f1))
 		{
-			fscanf(f1, "%s %s %d %s %d %s %d %s", pabo.client.nom, pabo.client.prenom, pabo.client.numadresse, pabo.client.rueadresse, pabo.client.codePostal, pabo.client.ville, pabo.client.telephone, pabo.client.mail);
-			tab_abonne[i]= pabo
+			fscanf(f1, "%s %s %d %s %d %s %d %s", pabo.client.nom, pabo.client.prenom, &pabo.client.numadresse, pabo.client.rueadresse, &pabo.client.codePostal, pabo.client.ville, &pabo.client.telephone, pabo.client.mail);
+			tab_abonne[i]= pabo;
 			i=i+1;
 		}
 		fclose(f1);
 		nbabonnement= i;
 	}
 	
-	while((rep !=1)||(rep !=2))
+	while((rep != 1)&&(rep != 2))
 	{
 		printf("Vous souhaitez souscrire à un abonnement?\n");
 		printf("-1- oui\n");
@@ -48,15 +54,15 @@ void abonnement()
 	
 		if( rep==1)
 		{
-			while((rep1>=4)&&(rep1<=nbspecglob))
+			while((rep1 < 4 )||(rep1>=nbspecglob))
 			{
 				printf("A combien de spectacle souhaitez vous vous abonner (4min)?\n");
-				scan("%d", rep1); //stock la va du nombre de spectacle voulu
+				scanf("%d", &rep1); //stock la va du nombre de spectacle voulu
 			}
 		}
-		else if (rep ==2)
+		else if (rep == 2)
 		{
-			break;
+			main();
 		}
 		else
 		{
@@ -68,35 +74,36 @@ void abonnement()
 	printf("|Bulletin d'abonnement|\n");
 	printf("+---------------------+\n");
 	
+	printf("Saisissez vos informations :\n");
 	printf("Nom : ");
 	scanf("%s", abo.client.nom);
 	printf("\nPrenom : ");
 	scanf("%s", abo.client.prenom); 
 	printf("\nAdresse :\n");
 	printf("  Numero : ");
-	scanf("%d", abo.client.numadresse);
-	printf("\n  Rue : ");
+	scanf("%d", &abo.client.numadresse);
+	printf("\n  Rue ('_' pour espace): ");
 	scanf("%s", abo.client.rueadresse);
 	printf("\n  Code Postal : ");
-	scanf("%d", abo.client.codePostal);
+	scanf("%d", &abo.client.codePostal);
 	printf("\n  Ville : ");
 	scanf("%s", abo.client.ville);
 	printf("\nTelephone : ");
-	scanf("%d", abo.client.telephone);
+	scanf("%d", &abo.client.telephone);
 	printf("\nMail : ");
 	scanf("%s", abo.client.mail);
 	
 // selection des spectacles + ajout de LA_MER dans les specatcles
 	strcpy(date.date,"00/00/2016");
 	printf("1 spectacle obligatoire, La Mer ajoutee...\n");
-	abo.tab_spec[0].nom ="LA_MER";
-	abo.date[0].nom ="LA_MER";
-	abo.tab_spec[0].salle=frichelieu;
+	strcpy(abo.tab_ss_abo[0].spec.nom,"LA_MER");
+	strcpy(abo.tab_ss_abo[0].date.nom,"LA_MER");
+	strcpy(abo.tab_ss_abo[0].spec.salle,frichelieu);
 	
 	for (i = 0 ; i < nbspecglob; i++)
 	{
 		conv_maj(tab_program[i].nom);
-		if (strcmp("LA_MER",tab_program[i].nom) == 0)
+		if (strcmp("LA_MER",tab_program[i].nom) != 0)
 		{
 			printf("-%d-\n", spectheatre+1); 
 			
@@ -120,17 +127,17 @@ void abonnement()
 		printf("\nSelectionnez le spectacle numero %d\n", i+1);
 		printf("Saisisez le numéro correspond au spectacle désiré : ");
 		scanf("%d", &rep);
-		strcpy(abo.tab_spec[i+1].nom,tab_program[tab_indice_spec[rep-1]].nom); // l'indice 0 de abo.tab_spec est déjà occupé par La Mer
-		strcpy(abo.tab_spec[i+1].salle,tab_program[tab_indice_spec[rep-1]].salle); //attention rep correspondant à l'indice qui sort la valeur sotck 
+		strcpy(abo.tab_ss_abo[i+1].spec.nom,tab_program[tab_indice_spec[rep-1]].nom); // l'indice 0 de abo.tab_spec est déjà occupé par La Mer
+		strcpy(abo.tab_ss_abo[i+1].spec.salle,tab_program[tab_indice_spec[rep-1]].salle); //attention rep correspondant à l'indice qui sort la valeur sotck 
 	}													// dans tab_indice cette valeur est l'indice du spectacle correspondant dans tab_program
 	
 // affichage de tous les specatcles
 	printf("Vous avez selectionnez les spectacles suivant :\n");
 	for (i = 0 ; i < rep1; i++)
 	{
-		printf("-%d- %s", i+1, abo.tab_spec[i].nom);
-		strcpy(abo.date[i].nom,abo.tab_spec[i].nom);
-		conv_maj(abo.date[i].nom);
+		printf("-%d- %s", i+1, abo.tab_ss_abo[i].spec.nom);
+		strcpy(abo.tab_ss_abo[i].date.nom,abo.tab_ss_abo[i].spec.nom);
+		conv_maj(abo.tab_ss_abo[i].date.nom);
 	}
 	
 // affichage des representation pour chaque spectacle
@@ -138,9 +145,8 @@ void abonnement()
 	
 	for(cpt=0; cpt < rep1; cpt++)
 	{
-		printf("Selection de la date pour %s:\n", abo.tab_spec[cpt].nom);
-		strcpy(comp,abo.date[cpt].nom);
-		print
+		printf("Selection de la date pour %s:\n", abo.tab_ss_abo[cpt].spec.nom);
+		strcpy(comp,abo.tab_ss_abo[cpt].date.nom);
 		for ( i =0; i<nbrepreglob; i++)
 		{
 			if (strcmp(comp, tab_repre[i].nom) == 0)//afficher toutes les dates dispo correspondant au spectacle svʬectionnvɍ
@@ -149,7 +155,7 @@ void abonnement()
 				{
 					printf("%s %s\n", tab_repre[i].date, tab_repre[i].heure);
 			
-				repre = repre +1;
+					repre = repre +1;
 				}	
 			}
 		}
@@ -164,8 +170,8 @@ void abonnement()
 			{
 				if(((strcmp(tab_repre[i].nom,date.date)) != 0)&&((strcmp(stock_date,tab_repre[i].date) ==0)))//exclusion des dates a 0
 				{
-					strcpy(abo.date[cpt].date,tab_repre[i].date);
-					strcpy(abo.date[cpt].date,tab_repre[i].heure);
+					strcpy(abo.tab_ss_abo[cpt].date.date,tab_repre[i].date);
+					strcpy(abo.tab_ss_abo[cpt].date.heure,tab_repre[i].heure);
 					trouve = 1;
 				}
 			}
@@ -178,53 +184,75 @@ void abonnement()
 	printf("Vous avez selectionnez les spectacles et les dates suivant :\n");
 	for (i = 0 ; i < rep1; i++)
 	{
-		printf("-%d- %s", i+1, abo.date[i].nom);
-		printf("-%d- %s", i+1, abo.date[i].date);
+		printf("-%d- %s", i+1, abo.tab_ss_abo[i].date.nom);
+		printf("-%d- %s", i+1, abo.tab_ss_abo[i].date.date);
 	}
 	
 // Réservation des places pour chaque spectacles 
 	nbplace_resa = 1; //(Ici c'est comme si on réservez pour 1 personne)
 	for(i=0; i < rep1; i++)
 	{
-		if(strcmp(abo.tab_spec[i].salle,frichelieu) ==0)
+		if(strcmp(abo.tab_ss_abo[i].spec.salle,frichelieu) ==0)
 		{
-			parcour.spec.nom = abo.date[i].nom;
-			parcour.spec.salle = abo.tab_spec[i].salle;
-			pacour.repre.nom = parcour.spec.nom;
-			pacour.repre.date = abo.date[i].date;
+			strcpy(parcour.spec.nom,abo.tab_ss_abo[i].date.nom);
+			strcpy(parcour.spec.salle,abo.tab_ss_abo[i].spec.salle);
+			strcpy(parcour.repre.nom,parcour.spec.nom);
+			strcpy(parcour.repre.date,abo.tab_ss_abo[i].date.date);
 			resa_richelieu ();
-			abo.theatre.categorie = pacour.tab_nb_rese[0].categorie;
-			abo.theatre.zone = pacour.tab_nb_rese[0].zone;
-			abo.theatre.numpl = pacour.tab_nb_rese[0].numpl;
-			abo.theatre.rangpl = pacour.tab_nb_rese[0].rangpl;
+			strcpy(abo.tab_ss_abo[i].rich.categorie,parcour.tab_nb_rese[0].categorie);
+			strcpy(abo.tab_ss_abo[i].rich.zone,parcour.tab_nb_rese[0].zone);
+			abo.tab_ss_abo[i].rich.numpl = parcour.tab_nb_rese[0].numpl;
+			abo.tab_ss_abo[i].rich.rangpl = parcour.tab_nb_rese[0].rangpl;
 		}
-		else if(strcmp(abo.tab_spec[i].salle,fstudio) ==0)
+		else if(strcmp(abo.tab_ss_abo[i].spec.salle,fstudio) ==0)
 		{
-			parcour.spec.nom = abo.date[i].nom;
-			parcour.spec.salle = abo.tab_spec[i].salle;
-			pacour.repre.nom = parcour.spec.nom;
-			pacour.repre.date = abo.date[i].date;
+			strcpy(parcour.spec.nom,abo.tab_ss_abo[i].date.nom);
+			strcpy(parcour.spec.salle,abo.tab_ss_abo[i].spec.salle);
+			strcpy(parcour.repre.nom,parcour.spec.nom);
+			strcpy(parcour.repre.date,abo.tab_ss_abo[i].date.date);
 			resa_studio();
 			// transférer les données de parcour dans abo avec les infos cnocernant la rézervation studio
 			
 		}
 	}
-
 // Affichage récap général de l'abonnement
 	printf("Récapitulatif abonnement :\n");
 	for (i = 0 ; i < rep1; i++)
 	{
-		printf("-%d- %s", i+1, abo.date[i].nom);
-		printf("-%d- %s", i+1, abo.tab_spec[i].salle);
-		printf("-%d- %s", i+1, abo.date[i].date);
-		printf("-%d- %s", i+1, abo.date[i].heure);
-		if(strcmp(abo.tab_spec[i].salle,frichelieu) ==0)
+		printf("-%d- %s", i+1, abo.tab_ss_abo[i].date.nom);
+		printf("-%d- %s", i+1, abo.tab_ss_abo[i].spec.salle);
+		printf("-%d- %s", i+1, abo.tab_ss_abo[i].date.date);
+		printf("-%d- %s", i+1, abo.tab_ss_abo[i].date.heure);
+		if(strcmp(abo.tab_ss_abo[i].spec.salle,frichelieu) ==0)
 		{
-			printf("-%d- categorie : %s, zone: %s, rang : %c numéro : %d", abo.theatre.categorie, abo.theatre.zone, abo.theatre.rangpl, abo.theatre.numpl);
+			printf("-%d- categorie : %s, zone: %s, rang : %c numéro : %d", i, abo.tab_ss_abo[i].rich.categorie, abo.tab_ss_abo[i].rich.zone, abo.tab_ss_abo[i].rich.rangpl, abo.tab_ss_abo[i].rich.numpl);
 		}
 		
 	}
-// enregistrement des données dans le fichier
+
+//paiement
+
+	
+// enregistrement des données dans le fichier, comment fonctionne le placement au studio?
+		printf("%s %s %d %c %d\n", tab_copie[0].categorie, tab_copie[0].zone, tab_copie[0].numpl, tab_copie[0].rangpl, tab_copie[0].etat);
+		
+		f1=fopen("abonne.txt","w");
+		printf("je commence a ecrire\n");
+		for(i= 0; i<rep1; i++)
+		{
+			
+			tab_abonne[i]= abo;
+			fprintf(f1, "%s %s %d %s %d %s %d %s ", abo.client.nom, abo.client.prenom, abo.client.numadresse, abo.client.rueadresse, abo.client.codePostal, abo.client.ville, abo.client.telephone, abo.client.mail);
+			for(cpt=0; cpt<rep1; cpt++)
+			{
+				fprintf(f1, "%s %s %s %s %s %d %s ", abo.tab_ss_abo[cpt].spec.nom, abo.tab_ss_abo[cpt].spec.salle, abo.tab_ss_abo[cpt].date.date, abo.tab_ss_abo[cpt].date.heure);
+			}
+		}
+		fclose(f1);
+		printf("a tout fini\n");
+		printf("votre place a 굩 enregistrꦜn");	
+			
+		choix=0;	
 // création id abonnement
 	
 }
