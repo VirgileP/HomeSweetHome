@@ -18,9 +18,10 @@ int nbabonnement;
 
 void abonnement()
 {
-	int rep=0, rep1=0, i=0, nbspecabo=0;
+	int rep=0, rep1=0, i=0, nbspecabo=0, cpt, nbspecrepre=0, repre=0;
 	struct abonnement pabo
 	FILE *f1;
+	struct piece date;
 	
 	
 	//1 seul fichier pour tout les clients il faut donc l'ouvrir
@@ -44,7 +45,7 @@ void abonnement()
 	
 		if( rep==1)
 		{
-			while((rep1>=4)&&(rep1<=MAX_ABO))
+			while((rep1>=4)&&(rep1<=nbspecglob))
 			{
 				printf("A combien de spectacle souhaitez vous vous abonner (4min)?\n");
 				scan("%d", rep1); //stock la va du nombre de spectacle voulu
@@ -83,7 +84,8 @@ void abonnement()
 	scanf("%s", abo.client.mail);
 	
 // selection des spectacles + ajout de LA_MER dans les specatcles
-	printf("1 spectacle obligatoire, La Mer ajoutee...\n")
+	strcpy(date.date,"00/00/2016");
+	printf("1 spectacle obligatoire, La Mer ajoutee...\n");
 	abo.tab_spec[0].nom ="LA_MER";
 	abo.tab_spec[0].salle="RICHELIEU";
 	
@@ -115,7 +117,8 @@ void abonnement()
 		printf("Saisisez le numéro correspond au spectacle désiré : ");
 		scanf("%d", &rep);
 		strcpy(abo.tab_spec[i+1].nom,tab_program[tab_indice_spec[rep-1]].nom); // l'indice 0 de abo.tab_spec est déjà occupé par La Mer
-	}// attention rep correspondant à l'indice qui sort la valeur sotck dans tab_indice cette valeur est l'indice du spectacle correspondant dans tab_program
+		strcpy(abo.tab_spec[i+1].salle,tab_program[tab_indice_spec[rep-1]].salle); //attention rep correspondant à l'indice qui sort la valeur sotck 
+	}													// dans tab_indice cette valeur est l'indice du spectacle correspondant dans tab_program
 	
 // affichage de tous les specatcles
 	printf("Vous avez selectionnez les spectacles suivant :\n");
@@ -125,10 +128,56 @@ void abonnement()
 	}
 	
 // affichage des representation pour chaque spectacle
-
-
-//nombe de place reserver =1
-
-
-
+	
+	
+	for(cpt=0; cpt < rep1; cpt++)
+	{
+		printf("Selection de la date pour %s:\n", abo.tab_spec[cpt].nom);
+		conv_maj(abo.tab_spec[cpt].nom);
+		strcpy(comp,abo.tab_spec[cpt].nom);
+		print
+		for ( i =0; i<nbrepreglob; i++)
+		{
+			if (strcmp(comp, tab_repre[i].nom) == 0)//afficher toutes les dates dispo correspondant au spectacle svʬectionnvɍ
+			{
+				if((strcmp(tab_repre[i].nom,date.date)) != 0) //exclusion des dates a 0
+				{
+					printf("%s %s\n", tab_repre[i].date, tab_repre[i].heure);
+			
+				repre = repre +1;
+				}	
+			}
+		}
+		nbspecrepre = repre;
+		printf("Veuillez saisir la date de votre choix (JJ/MM/AAAA) : \n");
+		scanf ("%s", stock_date);
+		
+		i = 0											;
+		while ((i<nbspecrepre)&&(trouve == 0))
+		{
+			if (strcmp(comp, tab_repre[i].nom) == 0)//afficher toutes les dates dispo correspondant au spectacle sélectionné				
+			{
+				if(((strcmp(tab_repre[i].nom,date.date)) != 0)&&((strcmp(stock_date,tab_repre[i].date) ==0)))//exclusion des dates a 0
+				{
+					trouve = 1;
+				}
+			}
+			i = i+1	;
+		}
+		if(trouve)
+		{
+			strcpy(abo.tab_spec[cpt].date,stock_date);
+		}			
+	}
+	
+// affichage de tous les specatcles + representation
+	printf("Vous avez selectionnez les spectacles et les dates suivant :\n");
+	for (i = 0 ; i < rep1; i++)
+	{
+		printf("-%d- %s", i+1, abo.tab_spec[i].nom);
+		printf("-%d- %s", i+1, abo.tab_spec[i].date);
+	}
+	
+// Réservation des places pour chaque spectacles (Ici c'est comme si on réservez pour 1 personne)
+		
 }
