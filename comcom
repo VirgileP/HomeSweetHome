@@ -10,6 +10,7 @@
 #define MAX_CLIENT 10000
 #define MAX_PL_Rich 862
 #define MAX_PL_STUDIO 136
+#define MAX_ABO 100
 
 #define MAX_TITRE 200
 #define T_MAX_NOM 10
@@ -22,38 +23,51 @@
 #define CATH 2
 
 
+
 /*----------Declaration preliminaire-------------------------------*/
-void charge_la_mule();
-void charge_le_bulot();
-void charge_representation();
-void initialisation(int tab[]);
-void tarifs()	;
+
+//modules de chargement des données à partir des fichiers
+
+void chargement_spectacle()							;
+void chargement_representation()					;
+void chargement_placesrichelieu()					;
+void initialisation(int tab[])						;
+
+//modules de traitement des données
+void selection_theatre()							;
+void affichage_programmation()						;
+void affichage_representation(int indice)			;
+void tarifs()										;
+int recherche(char nomrech[MAX_TITRE], int tabres[]);
+
+void resa_studio_verif()							;
+void resa_studio()									;
+void resa_richelieu()								;
+
+void verif_cat(char place[])						;
+void verif_zone(int borne_debut, int borne_fin)		;
+void recap()										;
+
+void paiement()										;
+void abonnement()									;
+void conv_aff(char tab[])							;
+void conv_maj(char tab[])							;
+void conv_date(char tab[])							;
+
+
+//modules administration
 void Mot_de_passe();
 void menu_admin()	;
 void saisie()		;
 void annulation()	;
-void selection_theatre();
-void affichage_programmation();
-void affichage_representation(int indice);
-void conv_aff(char tab[]);
-void conv_maj(char tab[]);
-void conv_date(char tab[]);
-int recherche(char nomrech[MAX_TITRE], int tabres[]) ;
 
-void resa_studio();
-void resa_richelieu();
 
-void verif_cat(char place[]);
-void verif_zone(int borne_debut, int borne_fin);
-void recap();
-
-void paiement();
-void abonnement();
 
 
 
 /*---------------------Declaration enregistrement-------------------------------*/
 
+//est-elle encore utile ? 
 struct client
     {
      char 	titre[10]				;
@@ -72,7 +86,8 @@ struct client
     };
     
 
-struct spectacle // enregistrement reprenant toutes les informations relatives ‚Äö√Ñ√∂‚àö√ë¬¨‚àû un spectacle
+// enregistrement permettant de stocker toutes les informations pour un spectacle
+struct spectacle 
 {
 	char nom[MAX_TITRE]				;
 	char auteur[100]				;
@@ -82,13 +97,15 @@ struct spectacle // enregistrement reprenant toutes les informations relatives �
 	char salle[400]					;
 };
 
-struct piece //ajout de la structure piece pour traiter les repr‚Äö√†√∂‚àö‚Ä†sentations
+//enregistrement permettant de stocker des représentations
+struct piece 
 {
 	char nom[MAX_TITRE];
 	char date[11];
 	char heure[10];
 };
 
+//enregistrement permettant de stocker toutes les informations des salles 
 struct theatre
 {
 	char categorie[13]			;
@@ -98,6 +115,7 @@ struct theatre
 	int etat					;
 };
 
+//enregistrement permettant de stocker toutes les informations sur les tarifs 
 struct tarifs
 {
 	char nom[20]				;
@@ -107,7 +125,8 @@ struct tarifs
 	int prix					;
 };
 
-
+//encore utile ? 
+//enregistrement permettant de stocker toutes les informations sur les réservations au STUDIO
 struct reserv_studio
 {
 	char spectacle[MAX_TITRE]			;
@@ -117,46 +136,60 @@ struct reserv_studio
 	int tab_places[MAX_PL_STUDIO]		;
 };
 
+//enregistrement permettant de stocker, à chaque étape, le parcours du client 
 struct parcour_client{
 	struct spectacle spec				;
 	struct piece repre					;
 	struct theatre tab_nb_rese[5]		;
-	struct client panier				;//ajout v
+	struct client panier				; //encore utile ?
+};
+
+//enregistrement permettant de stocker l'abonnement
+struct abonnement{
+	struct client client;
+	struct spectacle tab_spec[MAX_ABO];
+	struct piece date[MAX_ABO];
+	struct theatre rich;
+	struct reserv_studio studio;
 };
 
 
-
-/*----------variables globales--------------------*/
-struct spectacle tab_program[500]	; // tableau de structure stockant toutes les pièces pour tous les théâtre de la comédie
-struct theatre place_richelieu[MAX_PL_Rich]; // tableau de strcture stockant toutes les places de Richelieu
-struct theatre tab_copie[MAX_PL_Rich];
-struct piece tab_repre[500]; // tableau de structure stockant toutes les représentations par pièces
-struct client tabclient[MAX_CLIENT]	;
-struct tarifs tab_individuels[30]	;
-struct parcour_client parcour; //pour une réservation "normale"
-struct parcour_client tab_abo[3]; //pour un abonnement
-struct reserv_studio tabstudio[10]		; //√† adapter au nombre de repr√©sentations au studio
-int nbclients = 0;
-int nbplace_resa =0					;
-int nbplace_dispo = 0	;
-int nbspecglob = 0; // nombre de pi√®ces totales disponibles sur toute la com√©die fran√ßaise
-int nbplacetot = 0;
-int	nbspectheatre = 0;
-int nbspecrepre = 0;
-int tab_indice_spec[MAX_SPECTACLES];
-char frichelieu[20] = "RICHELIEU"; //identification des th√©√¢tre utilis√© afin de n'appeller que les pi√®ces jou√©es dans ce th√©√¢tre
-char fcolombier[20] = "COLOMBIER";
-char fstudio[20] = "STUDIO";
-
+/*-----------------variables globales--------------------*/
+struct spectacle tab_program[500]				; // pour stocker toutes les pièces pour toutes les salles de la comédie
+struct theatre place_richelieu[MAX_PL_Rich]		; // pour stocker toutes les places de la salle Richelieu
+struct theatre tab_copie[MAX_PL_Rich]			;
+struct piece tab_repre[500]						; // pour stocker toutes les représentations par pièces
+struct client tabclient[MAX_CLIENT]				;//encore utile ?
+struct tarifs tab_individuels[30]				;//pour stocker tous les tarifs
+struct parcour_client parcour					; //pour stocker un parcours client
+struct parcour_client tab_abo[3]				; //pour un abonnement de 4 spectacles
+struct reserv_studio tabstudio[10]				; //encore utile ? 
+int nbclients = 0								; //pour la saisie par l'administration
+int nbplace_resa = 0							;
+int nbplace_dispo = 0							;
+int nbspecglob = 0								; // nombre de pièces totales disponibles pour toute la comédie française
+int nbrepreglob = 0								;
+int nbplacetot = 0								;
+int	nbspectheatre = 0							;		
+int nbspecrepre = 0								;
+int tab_indice_spec[MAX_SPECTACLES]				;
+//identification des salles du théâtre
+char frichelieu[20] = "RICHELIEU"				; 
+char fcolombier[20] = "COLOMBIER"				;
+char fstudio[20] = "STUDIO"						;
 
 //ajout 
-int nbplace=0, choix=-1				;
-int borne_debut =0, borne_fin =0	;
-int tab_indice_zone[20]				;
-
+int nbplace=0, choix = NON_TROUVE				;
+int borne_debut = 0, borne_fin = 0				;
+int tab_indice_zone[20]							;
 
 //studio
 int stock = 0; //utile ce truc est-ce ? 
+
+//abonnement
+struct abonnement abo							;
+struct abonnement tab_abonne[MAX_TITRE]			;
+int nbabonnement								;
 
 /*-----------------------------------------*/
 main()
@@ -171,9 +204,9 @@ main()
 		printf("+-----------------+\n")					 	;
 		printf("|Comédie Française|\n")					 	;
 		printf("+-----------------+\n\n")					;
-		charge_la_mule()									;//la mule a √©t√© charg√©e
-		charge_le_bulot()									;//le bulot a √©t√© charg√©e
-		charge_representation()								;//la loutre nage a plein gaz
+		chargement_spectacle()									;
+		chargement_representation()									;//le bulot a √©t√© charg√©e
+		chargement_placesrichelieu()								;//la loutre nage a plein gaz
 		initialisation(tab_indice_spec)	 					;//tableau initialis√©
 		printf("-1- Programation\n")	 		;
 		printf("-2- Test paiement\n")	 		;
@@ -238,9 +271,10 @@ main()
 		
 	}
 }
+/*________________________________________________________________________________________*/
+/*__//choix du theâtre_//choix du spectacle//choix de la représentation___________________*/
 
-
-/*--------------Selection théâtre------------------*/
+/*--------------selection théâtre------------------*/
 
 void selection_theatre()
 {
@@ -282,78 +316,6 @@ void selection_theatre()
 }
 
 
-//penser à changer le message de bon chargement
-/*-----------!charge uniquement - aucun affichage! la liste complète des spectales par theatre------------------------------*/
-void charge_la_mule()
-{
-	struct spectacle representation ;	// recherche_programmation_theatre()
-	FILE *f1                        ;
-	int i=0				;
- 
-	f1=fopen("spectacle.txt","r"); //param‚Äö√†√∂‚àö¬£tre d'appelle de la variable fichier
-	while(! feof(f1))
-    {
-    	fscanf(f1, "%s %s %s %s %s %s", representation.nom, representation.auteur, representation.M_en_scene, representation.date_debut, representation.date_fin, representation.salle);
-    	tab_program[i]=representation; 
-    		conv_aff(tab_program[i].nom)		;	 //Pour traiter de donn√©es sous la m√™me forme dans tout le pg
-		conv_aff(tab_program[i].auteur)		;
-		conv_aff(tab_program[i].M_en_scene)	;
-		i=i+1;
-	}
-	fclose(f1);
-	nbspecglob= i; // nombre de pi√®ces totales disponibles sur toute la comédie française
-	printf ("La mule a été chargée!...\n");
-}
-
-
-//penser à changer le message de bon chargement
-/*----------------chargement des représentations-------------*/
-void charge_representation()
-{
-	struct piece representation ;// recherche_programmation_theatre()
-	FILE *f1                    ;
-	int i = 0					;
- 
-	f1=fopen("representationchar.txt","r"); //parametre d'appelle de la variable fichier
-	while(! feof(f1))
-    {
-    	fscanf(f1, "%s %s %s", representation.nom, representation.date, representation.heure);
-    	tab_repre[i]=representation; 
-  
-		i=i+1;
-	}
-	nbspecglob = i;
-	fclose(f1);
-	printf ("La loutre nage a plein gaz!...\n");
-	
-}
-
-
-//penser à changer le message de bon chargement
-
-/*----------chargement des place de Richelieu---------------*/
-void charge_le_bulot()
-{
-	struct theatre richelieu ;// recherche_programmation_th√©√¢tre()
-	FILE *f1                        ;
-	int i=0							;
- 
-	f1=fopen("prichelieu.txt","r"); //param√®tre d'appel de la variable fichier
-	while(! feof(f1))
-    {
-    	fscanf(f1, "%s %s %d %c", richelieu.categorie, richelieu.zone, &richelieu.numpl, &richelieu.rangpl);
-    	place_richelieu[i]=richelieu; //chargement des enregistrements dans le tableau de structure
-
-		i=i+1;
-	}
-	//printf("i= %d", i);
-	fclose(f1);
-	nbplacetot= i-1; // nombre de pi‚Äö√†√∂‚àö¬£ces totales disponibles sur toute la com‚Äö√†√∂‚àö‚Ä†die fran‚Äö√†√∂‚àö√ñaise
-	printf ("Le bulot a été chargé!...\n");
-}
-
-
-
 /*-------------affichage des spectacles en fonction du théâtre sélectionné-----------*/
 void affichage_programmation(char nomtheatre[])
 {
@@ -369,45 +331,36 @@ void affichage_programmation(char nomtheatre[])
 	{
 		if (strcmp(nomtheatre,tab_program[i].salle) == 0)
 		{
-			printf("-%d-\n", spectheatre+1); //ajout de 1 pour l'affichage, bien faire attention que ce n'est que de l'affichage 
-    		//printf("indice %d\n", spectheatre); // verification que l'indice est conserv‚àö¬© et que le +1 n'est pas ajout‚àö¬© ce niveau 
-			
-			printf("nom de la piece : %s\n", tab_program[i].nom)			; //affichage_programmation()
-    		printf("nom de l'auteur : %s\n", tab_program[i].auteur)	  		; 
-    		printf("nom metteur en scene : %s\n", tab_program[i].M_en_scene);
+			printf("-%d-\n", spectheatre+1); //ajout de 1 pour l'affichage
+			printf("nom de la piece : %s\n", tab_program[i].nom)				; 
+    		printf("nom de l'auteur : %s\n", tab_program[i].auteur)	  			;	 
+    		printf("nom metteur en scene : %s\n", tab_program[i].M_en_scene)	;
     		printf("nom date de d‚àö¬©but : %s\n", tab_program[i].date_debut)	;
-    		printf("nom date de fin : %s\n\n", tab_program[i].date_fin)  	;
+    		printf("nom date de fin : %s\n\n", tab_program[i].date_fin)  		;
 			
-			tab_indice_spec[spectheatre] = i; //on utilise spectheatre comme indice pour stocker la valeur de l'indice i qui permettra de retrouver la ligne contenant
-												//le nom de la pi‚àö¬Æce dans le tableau de structure tab_program
-			spectheatre = spectheatre +1;  // nb de spec par th‚àö¬©‚àö¬¢tre ok
-	 		//printf("affichage tab_indice_spec[spectheatre] = %d\n",tab_indice_spec[spectheatre]); //afficher variable ou indice ? 
-			// ‚àö‚Ä† jeter si ok printf("i est %d¬¨‚Ä†\n",i);
+			//on utilise spectheatre comme indice pour stocker la valeur de l'indice i qui permettra de retrouver la ligne contenantle nom de la pièce dans tab_program
+			tab_indice_spec[spectheatre] = i; 
+			spectheatre = spectheatre +1;  
+			
     	}
 	}
-	nbspectheatre = spectheatre; //doit-on retirer 1 pour retomber sur les bons indices du tableau?
-	//!!!!!!!! Attention a v‚àö¬©rifier si il faut r‚àö¬©cup‚àö¬©rer l'indice de i  ou de nbspectheatre pour retruover le nom du spectacle recherch‚àö¬©!
-		
-	//printf("nombre de spectacle pour la boucle i = %d \n", i);
-	//printf("nombre de specacle de la variable globale nbspectheatre = %d\n",nbspectheatre); // 
+	nbspectheatre = spectheatre; 
 	
-	
-	while( choix != 0) //maintenant que l'on a besoin de 0 pour travailler dans le tab_indice_spec, il faut r‚àö¬©fl‚àö¬©chir a une nouvelle sortie de boucle
+	while( choix != 0) 
 	{
-		printf("Pour selectionner le spectacle saisissez son num√©ro.\n");
-		printf("Pour revenir au menu principal saisissez 0.\n"); //pour faire appelle au nom de la pi‚àö¬Æce dans la fonction d'affichage des repr‚àö¬©sentations
+		printf("Pour selectionner le spectacle saisissez son numéro.\n");
+		printf("Pour revenir au menu principal saisissez 0.\n"); //pour faire appelle au nom de la pièce dans la fonction d'affichage des représentations
 		printf("Saisissez votre choix : ");
 		scanf("%d",&selec);
 		
-		if(selec == 0) // est-ce encore valable?
+		if(selec == 0) 
 		{
 			main();
 		}
-		else if((selec >= 1)||(selec <= nbspectheatre)) //attention v‚àö¬©rifier les indices = nbspec ok
+		else if((selec >= 1)||(selec <= nbspectheatre)) 
 		{
 			indice = selec-1;
-			//printf("affichage indice rentr√© dans la fonction affichage_representation = %d\n", indice);
-			affichage_representation(indice); //appel
+			affichage_representation(indice); 
 			choix = 0;
 		}
 		else
@@ -417,7 +370,7 @@ void affichage_programmation(char nomtheatre[])
 	}
 }
 
-/*------------affichage des repr√©sentations en fonction du spectacle s√©lectionn√©---------*/
+/*------------affichage des représentations en fonction du spectacle sélectionné---------*/
 
 void affichage_representation(int indice)
 {
@@ -443,10 +396,11 @@ void affichage_representation(int indice)
 	conv_maj(comp);
 	strcpy(parcour.spec.nom,comp); 
 	printf("%s\n", comp);
+	
 	//comparer ce nom avec celui présent dans représentation ne fonctionne pas après 7
 	for ( i =0; i<nbspecglob; i++)
 	{
-		if (strcmp(comp, tab_repre[i].nom) == 0)//afficher toutes les dates dispo correspondant au spectacle s√©lectionn√©
+		if (strcmp(comp, tab_repre[i].nom) == 0)//afficher toutes les dates disponibles correspondant au spectacle sélectionné
 		{
 			if((strcmp(tab_repre[i].nom,date.date)) != 0) //exclusion des dates a 0
 			{
@@ -468,8 +422,6 @@ void affichage_representation(int indice)
 		}
 	else
 		{
-			//printf("stock date dans stock_date %s\n", stock_date);
-			//printf("affichage comp %s\n",comp);
 			i = 0											;
 			while ((i<nbspecglob)&&(trouve == 0))
 			{
@@ -481,22 +433,20 @@ void affichage_representation(int indice)
 					}
 				}
 				i = i+1	;
-			}
+		}
 			if(trouve)
 			{
 				strcpy(parcour.repre.date,stock_date);
-				//printf("stock date dans parcours %s\n", parcour[0].repre.date);
 				
-				//ajout
 				if (strcmp(parcour.spec.salle,frichelieu) == 0)
-				{ //si richelieu, catégorisation				
+				{ 				
 				resa_richelieu();
 				main();
 				}
 				else if (strcmp(parcour.spec.salle,fstudio) == 0)
-				{ //placement libre
-				resa_studio();
-				main(); //retour au main à vérifier
+				{ 
+				resa_studio_verif();
+				main(); 
 				}
 				//else if (strcmp(parcour.spec.salle,fcolombier) == 0)
 				//{
@@ -505,7 +455,7 @@ void affichage_representation(int indice)
 				//}
 			}
 			
-		printf("Erreur, date sélectionnée n'existe pas\n");
+		printf("Erreur, la date sélectionnée n'existe pas\n");
 		
 	}
 	
@@ -522,7 +472,7 @@ void resa_richelieu ()
 	FILE *f1;
 	char nom_fichier[100] ="\0";
 	
-	int i, trouve =0, trouve1 = 0, trouve2 =0, choix = NON_TROUVE, nbplace =nbplace_resa, indice_zone = 0, selec_zone= -1, indice_stop=0, cpt, conf=0, verif=0, continu=0;
+	int i, trouve =0, trouve1 = 0, trouve2 =0, choix = NON_TROUVE, nbplace =nbplace_resa, indice_zone = 0, selec_zone= -1, indice_stop=0, cpt, verif=0, continu=0;
 	int dispo_a=CATA, dispo_b=CATB, dispo_c=CATC, dispo_p=CATP, dispo_h=CATH;
 
 	while (choix != 0)
@@ -532,24 +482,23 @@ void resa_richelieu ()
 			printf("\nCombien de places souhaitez vous reserver (6 max)?  ");
 			printf("[0 pour revenir aux choix des spectacles]\n");
 			scanf("%d", &nbplace);
-			nbplace_resa= nbplace; //stockage dans variable global pour faire tourner la boucle de réservation
+			nbplace_resa= nbplace; //stockage dans variable global pour faire tourner la boucle de rÈservation
 			if((nbplace<1)&&(nbplace>6))
 			{
 				printf("Vous devez saisir un nombre entre 1 et 6\n");
 			}
 			else if(nbplace == 0)
 			{
+				choix=0;
 				affichage_programmation(parcour.spec.salle);
 			}
 		}
 		
-		choix = 0;
+		choix =0;
 	}
-
-/*----------------vérification disponibilité place---------------*/
+/*----------------vÈrification disponibilitÈ place---------------*/
 	
 	choix = NON_TROUVE;
-	
 	while(choix !=0)
 	{
 		resa = parcour;
@@ -563,7 +512,7 @@ void resa_richelieu ()
 		
 		if (fopen(nom_fichier,"r") != NULL)
 		{
-			f1=fopen(nom_fichier,"r"); //condition de vérification du nombre de place à supprimer
+			f1=fopen(nom_fichier,"r"); //condition de vÈrification du nombre de place ‡ supprimer
 			i=0;
 			while(! feof(f1))
     		{
@@ -596,9 +545,10 @@ void resa_richelieu ()
 			nbplace_dispo = i-1;
 			printf("place disponible, A: %d, B: %d, C: %d PETIT_BUREAU: %d, HANDICAPE: %d\n", dispo_a, dispo_b, dispo_c, dispo_p, dispo_h);
 			
-			printf("Veuillez sélectionner votre catégorie (A, B, C ou PETIT_BUREAU) : ");
+			printf("Veuillez s√©lectionner votre cat√©gorie (A, B, C ou PETIT_BUREAU) : ");
 			scanf("%s", categorie);
 			conv_maj(categorie);
+			printf("%s",categorie);
 			for(i=0; i<nbplace_resa; i++)
 			{
 				strcpy(parcour.tab_nb_rese[i].categorie, categorie);
@@ -608,14 +558,10 @@ void resa_richelieu ()
 			{
 				if (strcmp(parcour.tab_nb_rese[0].categorie, "A") ==0)
 				{
-					if(nbplace_resa <= dispo_a)
+					if(nbplace_resa<= dispo_a)
 					{
 						verif_cat(categorie);
 						verif_zone(borne_debut, borne_fin);
-						printf("vous souhaitez reserver en categorie %s, zone %s, %d places\n", parcour.tab_nb_rese[0].categorie, parcour.tab_nb_rese[0].zone, nbplace_resa);
-						printf("-1- Confirmer\n");
-						printf("-2- Annuler (retour au menu principal)\n");
-						scanf("%d", &conf);
 						choix =0;
 					}
 					else
@@ -630,10 +576,6 @@ void resa_richelieu ()
 					{
 						verif_cat(categorie);
 						verif_zone(borne_debut, borne_fin);
-						printf("vous souhaitez reserver en categorie %s, zone %s, %d places\n", parcour.tab_nb_rese[0].categorie, parcour.tab_nb_rese[0].zone, nbplace_resa);
-						printf("-1- Confirmer\n");
-						printf("-2- Annuler (retour au menu principal)\n");
-						scanf("%d", &conf);
 						choix =0;
 					}
 					else
@@ -648,10 +590,6 @@ void resa_richelieu ()
 					{
 						verif_cat(categorie);
 						verif_zone(borne_debut, borne_fin);
-						printf("vous souhaitez reserver en categorie %s, zone %s, %d places\n", parcour.tab_nb_rese[0].categorie, parcour.tab_nb_rese[0].zone, nbplace_resa);
-						printf("-1- Confirmer\n");
-						printf("-2- Annuler (retour au menu principal)\n");
-						scanf("%d", &conf);
 						choix =0;
 					}
 					else
@@ -662,125 +600,10 @@ void resa_richelieu ()
 				}
 				else if (strcmp(parcour.tab_nb_rese[0].categorie, "PETIT_BUREAU") ==0)
 				{
-					if(nbplace_resa <= dispo_p)
-					{
-						verif_cat(categorie);
-						verif_zone(borne_debut, borne_fin);
-						printf("vous souhaitez reserver en categorie %s, zone %s, %d places\n", parcour.tab_nb_rese[0].categorie, parcour.tab_nb_rese[0].zone, nbplace_resa);
-						printf("-1- Confirmer\n");
-						printf("-2- Annuler (retour au menu principal)\n");
-						scanf("%d", &conf);
-						choix =0;
-					}
-					else
-					{
-						printf("Il reste %d places dans cette catégorie", dispo_p);
-						selection_theatre();
-					}
-				}
-				else if (strcmp(parcour.tab_nb_rese[0].categorie, "HANDICAPE") ==0)
-				{
-					if(nbplace_resa<= dispo_h)
-					{
-						verif_cat(categorie);
-						verif_zone(borne_debut, borne_fin);
-						printf("vous souhaitez reserver en categorie %s, zone %s, %d places\n", parcour.tab_nb_rese[0].categorie, parcour.tab_nb_rese[0].zone, nbplace_resa);
-						printf("-1- Confirmer\n");
-						printf("-2- Annuler (retour au menu principal)\n");
-						scanf("%d", &conf);
-						choix = 0;
-					}
-					else
-					{
-						printf("Il reste %d places dans cette catégorie", dispo_h);
-						selection_theatre();
-					}
-				}
-			}
-			recap(conf);	
-		}
-		else //si le fichier n'existe pas!
-		{
-			for(i=0; i<MAX_PL_Rich; i++)
-			{
-				tab_copie[i]=place_richelieu[i];
-			}
-			nbplace_dispo = i;
-			
-			printf("Veuillez sélectionner votre catégorie (A, B, C ou PETIT_BUREAU) : ");
-			scanf("%s", categorie);
-			conv_maj(categorie);
-			for(i=0; i<nbplace_resa; i++)
-			{
-				strcpy(parcour.tab_nb_rese[i].categorie, categorie);
-			}
-			
-	 		while(choix !=0)
-			{
-				if (strcmp(parcour.tab_nb_rese[0].categorie, "A") ==0)
-				{
-					if(nbplace_resa<= dispo_a)
-					{
-						verif_cat(categorie);
-						verif_zone(borne_debut, borne_fin);
-						printf("vous souhaitez reserver en categorie %s, zone %s, %d places\n", parcour.tab_nb_rese[0].categorie, parcour.tab_nb_rese[0].zone, nbplace_resa);
-						printf("-1- Confirmer\n");
-						printf("-2- Annuler (retour au menu principal)\n");
-						scanf("%d", &conf);
-						choix = 0;
-					}
-					else
-					{
-						printf("Il reste %d places dans cette catégorie", dispo_a);
-						selection_theatre();
-					}
-				}
-				else if (strcmp(parcour.tab_nb_rese[0].categorie, "B") == 0)
-				{
-					if(nbplace_resa<= dispo_b)
-					{
-						verif_cat(categorie);
-						verif_zone(borne_debut, borne_fin);
-						printf("vous souhaitez reserver en categorie %s, zone %s, %d places\n", parcour.tab_nb_rese[0].categorie, parcour.tab_nb_rese[0].zone, nbplace_resa);
-						printf("-1- Confirmer\n");
-						printf("-2- Annuler (retour au menu principal)\n");
-						scanf("%d", &conf);
-						choix =0;
-					}
-					else
-					{
-						printf("Il reste %d places dans cette catégorie", dispo_b);
-						selection_theatre();
-					}
-				}
-				else if (strcmp(parcour.tab_nb_rese[0].categorie, "C") ==0)
-				{
-					if(nbplace_resa<= dispo_c)
-					{
-						verif_cat(categorie);
-						verif_zone(borne_debut, borne_fin);
-						printf("vous souhaitez reserver en categorie %s, zone %s, %d places\n", parcour.tab_nb_rese[0].categorie, parcour.tab_nb_rese[0].zone, nbplace_resa);
-						printf("-1- Confirmer\n");
-						printf("-2- Annuler (retour au menu principal)\n");
-						scanf("%d", &conf);
-						choix =0;
-					}
-					else
-					{
-						printf("Il reste %d places dans cette catégorie", dispo_c);
-						selection_theatre();
-					}
-				}
-				else if (strcmp(parcour.tab_nb_rese[0].categorie, "PETIT_BUREAU") ==0)
-				{
 					if(nbplace_resa<= dispo_p)
 					{
 						verif_cat(categorie);
 						verif_zone(borne_debut, borne_fin);
-						printf("vous souhaitez reserver en categorie %s, zone %s, %d places\n", parcour.tab_nb_rese[0].categorie, parcour.tab_nb_rese[0].zone, nbplace_resa);
-						printf("-1- Confirmer\n");
-						printf("-2- Annuler (retour au menu principal)\n");
-						scanf("%d", &conf);
 						choix =0;
 					}
 					else
@@ -795,25 +618,112 @@ void resa_richelieu ()
 					{
 						verif_cat(categorie);
 						verif_zone(borne_debut, borne_fin);
-						printf("vous souhaitez reserver en categorie %s, zone %s, %d places\n", parcour.tab_nb_rese[0].categorie, parcour.tab_nb_rese[0].zone, nbplace_resa);
-						printf("-1- Confirmer\n");
-						printf("-2- Annuler (retour au menu principal)\n");
-						scanf("%d", &conf);
 						choix =0;
 					}
 					else
 					{
-						printf("Il reste %d places dans cette catégorie", dispo_h);
+						printf("Il reste %d places dans cette catÈgorie", dispo_h);
+						selection_theatre();
+					}
+				}
+			}	
+		}
+		else //si le fichier n'existe pas!
+		{
+			for(i=0; i<MAX_PL_Rich; i++)
+			{
+				tab_copie[i]=place_richelieu[i];
+				//printf("%s %s %d %c %d", tab_copie[i].categorie, tab_copie[i].zone, tab_copie[i].numpl, tab_copie[i].rangpl, tab_copie[i].etat);
+			}
+			nbplace_dispo=i-1;
+			
+			
+			printf("Veuillez s√©lectionner votre cat√©gorie (A, B, C ou PETIT_BUREAU) : ");
+			scanf("%s", categorie);
+			conv_maj(categorie);
+			for(i=0; i<nbplace_resa; i++)
+			{
+				strcpy(parcour.tab_nb_rese[i].categorie, categorie);
+			}			
+	 		while(choix !=0)
+			{
+				if (strcmp(parcour.tab_nb_rese[0].categorie, "A") ==0)
+				{
+					if(nbplace_resa<= dispo_a)
+					{
+						verif_cat(categorie);
+						verif_zone(borne_debut, borne_fin);
+						choix =0;
+					}
+					else
+					{
+						printf("Il reste %d places dans cette catÈgorie", dispo_a);
+						selection_theatre();
+					}
+				}
+				else if (strcmp(parcour.tab_nb_rese[0].categorie, "B") ==0)
+				{
+					if(nbplace_resa<= dispo_b)
+					{
+						verif_cat(categorie);
+						verif_zone(borne_debut, borne_fin);
+						choix =0;
+					}
+					else
+					{
+						printf("Il reste %d places dans cette catÈgorie", dispo_b);
+						selection_theatre();
+					}
+				}
+				else if (strcmp(parcour.tab_nb_rese[0].categorie, "C") ==0)
+				{
+					if(nbplace_resa<= dispo_c)
+					{
+						verif_cat(categorie);
+						verif_zone(borne_debut, borne_fin);
+						choix =0;
+					}
+					else
+					{
+						printf("Il reste %d places dans cette catÈgorie", dispo_c);
+						selection_theatre();
+					}
+				}
+				else if (strcmp(parcour.tab_nb_rese[0].categorie, "PETIT_BUREAU") ==0)
+				{
+					if(nbplace_resa<= dispo_p)
+					{
+						verif_cat(categorie);
+						verif_zone(borne_debut, borne_fin);
+						choix =0;
+					}
+					else
+					{
+						printf("Il reste %d places dans cette catÈgorie", dispo_p);
+						selection_theatre();
+					}
+				}
+				else if (strcmp(parcour.tab_nb_rese[0].categorie, "HANDICAPE") ==0)
+				{
+					if(nbplace_resa<= dispo_h)
+					{
+						verif_cat(categorie);
+						verif_zone(borne_debut, borne_fin);
+						choix =0;
+					}
+					else
+					{
+						printf("Il reste %d places dans cette catÈgorie", dispo_h);
 						selection_theatre();
 					}
 				}
 			}
-			recap(conf);
+			
 		}
-		
+		recap();
 		
 /*-----------Ècriture des modification dans le fichier de gestion des spectacles-------*/		
-		printf("%s %s %d %c %d\n", tab_copie[0].categorie, tab_copie[0].zone, tab_copie[0].numpl, tab_copie[0].rangpl, tab_copie[0].etat);
+		//printf("%s %s %d %c %d\n", tab_copie[0].categorie, tab_copie[0].zone, tab_copie[0].numpl, tab_copie[0].rangpl, tab_copie[0].etat);
 		
 		f1=fopen(nom_fichier,"w");
 		printf("je commence a ecrire\n");
@@ -821,17 +731,19 @@ void resa_richelieu ()
 		{
 			
 			richelieu = tab_copie[i];
-			printf("%s %s %d %c %d", richelieu.categorie, richelieu.zone, richelieu.numpl, richelieu.rangpl, richelieu.etat);
+			//printf("%s %s %d %c %d", richelieu.categorie, richelieu.zone, richelieu.numpl, richelieu.rangpl, richelieu.etat);
 			fprintf(f1, "%s %s %d %c %d\n", richelieu.categorie, richelieu.zone, richelieu.numpl, richelieu.rangpl, richelieu.etat);
 		}
 		fclose(f1);
 		printf("a tout fini\n");
-		printf("votre place a été enregistrée\n");	
+		printf("votre place a ÈtÈ enregistrÈ\n");	
 			
 		choix=0;	
 	}
 }	
-/*--------------------Recherche d'une pi√®ce par son titre----------------------*/
+
+
+/*--------------------Recherche d'une pièce par son titre----------------------*/
 int recherche(char prefixe_p_rech[MAX_TITRE], int tabres[])
 {
 	struct spectacle representation	;
@@ -916,8 +828,8 @@ void Mot_de_passe()
 			//Au bout de deux erreurs sur le login, retour au menu principal
 			if(test2 !=0)
 			{
-			printf("\nAcc√®s Interdit.\n");
-			printf("Vous allez √™tre redirig√© vers le menu d'accueil.\n\n");
+			printf("\nAccès Interdit.\n");
+			printf("Vous allez être redirigé vers le menu d'accueil.\n\n");
 			}
 		}	
 				
@@ -1000,7 +912,8 @@ void annulation()
 printf("Hello\n");
 }
 
-/*-------vérification catégorie*/
+//*-------vÈrification catÈgorie*/
+/*-------vÈrification catÈgorie*/
 void verif_cat(char place[])
 {
 	int i, trouve1 = 0, trouve2 =0, choix = NON_TROUVE;
@@ -1012,8 +925,8 @@ void verif_cat(char place[])
 			strcpy(parcour.tab_nb_rese[i].categorie, place);
 			//printf("cat %s enreg pour le  client %d",parcour.tab_nb_rese[i].categorie, i );
 		}
-		// Int√àgrer un test pour savoir si il reste suffisemment de place dans cette catg√àorie*/
-	
+		/* Int√àgrer un test pour savoir si il reste suffisemment de place dans cette catg√àorie*/
+		printf("je suis rentre dans verif cat");
 		i = 0;
 		while ((i<MAX_PL_Rich)&&(trouve1 == 0))
 		{
@@ -1026,7 +939,7 @@ void verif_cat(char place[])
 			i++; 
 		}
 		borne_debut = i-1;
-		//printf("valeur borne-debut = %d\n", borne_debut);
+		printf("valeur borne-debut = %d\n", borne_debut);
 	
 		while ((i<MAX_PL_Rich)&&(trouve2 == 0))
 		{
@@ -1040,16 +953,16 @@ void verif_cat(char place[])
 		}
 		borne_fin = i-1;
 	
-		//printf("test de la valeur de la sortie de boucle pour la borne-fin i = %d\n\n",borne_fin);
+		printf("test de la valeur de la sortie de boucle pour la borne-fin i = %d\n\n",borne_fin);
 		
 		if((trouve1 == 0)&&(trouve2 == 0))
 		{
-			printf("Element non trouvé\n");
+			printf("Element non trouv√©\n");
 		}
 		else
 		{
 			printf ("Element trouv√© : %s\n", place); //affichage de la cat‚àö¬©gorie de la place
-			choix = 0;
+			choix =0;
 			printf("allons vers la zone\n");
 			//cherche_zone(borne_debut, borne_fin); // ‡ supprimer
 		}
@@ -1068,25 +981,19 @@ void verif_zone(int debut, int fin)
 /*-------selection zone pouvant accueillir le nombre de place sÈlÈectionnÈes-----*/		
 		indice_zone = 0;
 		stock=0;
-		for (i=debut ; i <= fin; i++)
+			for (i=debut ; i <= fin; i++)
+	{
+		
+		if (strcmp(place_richelieu[i].zone,place_richelieu[i+1].zone) != 0)
 		{
-			if (strcmp(tab_copie[i].zone,tab_copie[i+1].zone) != 0)
-			{
-				tab_zone[indice_zone] = tab_copie[i];
-				printf("-%d- %s\n", indice_zone+1, tab_zone[indice_zone].zone);
-				tab_indice[stock]=indice_zone;
-				stock=stock+1;
-				i2=i;
-				cpt=nbplace_resa;
-				while(cpt>0)
-				{
-					indice_zone =indice_zone +1;
-					cpt=cpt-1;
-					i2= i2-1;
-					tab_zone[indice_zone]=tab_copie[i2];
-				}
-			}
-		}
+			printf("-%d- %s\n", indice_zone+1, place_richelieu[i].zone);
+    		//printf("%d\n", indice_zone); // test valeur indice zone	
+			tab_indice_zone[indice_zone] = i; //on utilise tab_indice comme indice pour stocker la valeur de l'indice i qui permettra de retrouver la ligne contenant
+												//le nom de la zone dans le tableau de structure tab_program
+    		//printf("affichage tab_indice_spec[indice_zone] = %d\n",tab_indice_spec[indice_zone]);
+			indice_zone = indice_zone +1;  
+    	}
+	}
 		nb_zone=indice_zone;
 				
 		/*for (i=debut ; i <= fin; i++)
@@ -1173,7 +1080,7 @@ void recap()
 		}
 		else if (conf == 2)
 		{
-			choix =0;
+			choix = 0;
 			main();
 		}
 		else
@@ -1183,149 +1090,8 @@ void recap()
 	
 }
 
-/*------------------------------Tarifs---------------------------------*/
-void tarifs()
-{
-
-	int choix = NON_TROUVE, i = 0, borne;
-	FILE *f1 	;
-	struct tarifs individuels;
-	
-	while (choix != 0)
-	{
-	printf("\nTarifs - Consultation\n")				;
-	printf("-1- Consulter nos tarifs\n")			;
-	printf("-O- Continuer\n")						;
-	printf("Choix : ");
-	scanf("%d", &choix);
-		switch(choix)
-		{
-		case 1: printf("Tarifs Individuels !\n");
-				f1=fopen("tarifs.txt","r");
-				while (! feof(f1))
-				{
-					fscanf(f1, "%s %s %c %s %d", individuels.nom, individuels.type_tarifs, &individuels.categorie, individuels.type_client, &individuels.prix);
-					tab_individuels[i] = individuels	;
-					conv_aff(tab_individuels[i].nom);
-					conv_aff(tab_individuels[i].type_tarifs);
-					conv_aff(tab_individuels[i].type_client);
-					i = i+1;
-				}
-				
-				fclose(f1);
-				borne = i;
-				printf("tarifs importés. borne : %d\n", borne); //test
-								
-				for (i = 0;i < borne;i++)
-				{
-				//printf("i = %d\n",i); test
-				conv_aff(frichelieu);
-				if (strcmp(tab_individuels[i].nom,tab_individuels[i-1].nom) != 0) //pour ne pas afficher 20 fois le nom des salles
-				{
-				printf("\n\nSalle %s\n",tab_individuels[i].nom);
-				}
-				//printf("%s ", tab_individuels[i].nom);  
-				printf("%20s ", tab_individuels[i].type_tarifs);
-				if (strcmp(tab_individuels[i].nom,"Richelieu") == 0)
-				{
-				printf("catégorie %c ", tab_individuels[i].categorie);
-				}
-				printf("%35s", tab_individuels[i].type_client);
-				printf("%20d€\n", tab_individuels[i].prix);
-				}
-				conv_maj(frichelieu);
-				break;
-		case 0 :f1=fopen("tarifs.txt","r"); //on charge les tarifs en mémoire, pour le module de paiement, même sans consultation de l'utilisateur. 
-				while (! feof(f1))
-				{
-					fscanf(f1, "%s %s %c %s %d", individuels.nom, individuels.type_tarifs, &individuels.categorie, individuels.type_client, &individuels.prix);
-					tab_individuels[i] = individuels	;
-					conv_aff(tab_individuels[i].nom);
-					conv_aff(tab_individuels[i].type_tarifs);
-					conv_aff(tab_individuels[i].type_client);
-					i = i+1;
-				}
-				fclose(f1); 
-				printf("Quitter \n")		;
-				break;
-		default: printf("Choix erroné, veuillez recommencer.\n")		;
-				break;
-		}
-	}
-}
-
-
-
-/*------convertisseurs_entree_fichier-----------------------------------*/
-void conv_maj(char tab[])
-{
-  int i, taille ;
-  
-  taille = strlen(tab);
-  for (i=0 ; i< taille ; i++)
-  {
-  	if(tab[i] == ' ')
-  	{
-  		tab[i] = '_';
-	}
-	else
-	{
-		tab[i] = toupper(tab[i]);
-	}
-    
-  }
-}
-
-/*------convertisseur_affichage_fichier--------------------*/
-void conv_aff(char tab[])
-{
-	int i, taille;
-	
-	taille = strlen(tab);
-	for (i=1; i<taille; i++)
-	{
-		if(tab[i] == '_')
-		{
-			tab[i] = ' ';
-			i++;
-		}
-		else
-		{
-		tab[i] = tolower(tab[i]);
-		}
-		
-	}
-}
-
-/*------convertisseur_date_pour_fichier--------------------*/
-void conv_date(char tab[])
-{
-	int i, taille;
-	
-	taille = strlen(tab);
-	for (i=1; i<taille; i++)
-	{
-		if(tab[i] == '/')
-		{
-			tab[i] = '^';
-			i++;
-		}
-	}
-}
-/*-----------initialisation tabelau----------*/
-void initialisation(int tab[])
-{
-	int i;
-	for (i=0; i<MAX_SPECTACLES; i++)
-	{
-		tab[i] =-1;
-	}
-	printf("tableau initialisé...\n");
-}
-
 /*-----------------Résa Studio------------------------*/
-
-void resa_studio()
+void resa_studio_verif()
 {
 
 /* Import du parcours client */
@@ -1398,26 +1164,94 @@ void resa_studio()
 			
 			//maxdispo permet de vérifier la disponibilité restante des places et de limiter 
 			// le choix des places à la capacité des places qu'il reste
-			
-		while((nbplace<1)||(nbplace>maxdispo))
+	
+	while((nbplace<1)||(nbplace>maxdispo))
 		{
-			printf("Combien de places souhaitez vous reserver (%d max)? ", maxdispo);
+			printf("Combien de places souhaitez vous reserver (%d max)?\n", maxdispo);
+			printf("[0 pour annuler et revenir à l'accueil]\n");
+			printf("Choix : ");
 			scanf("%d", &nbplace);
-			nbplace_resa= nbplace;
+			if (nbplace == 0)
+			{
+			main();
+			}else
+			{ 
+			resa.panier.nbplacesres = nbplace;
+			parcour = resa;	
+			printf("%d places\n", resa.panier.nbplacesres);
+			paiement();
 			if((nbplace<1)||(nbplace>6))
 			{
 				printf("Vous devez saisir un nombre entre 1 et %d\n", maxdispo);
 			}
+			}
 		}
-			
-			
-			
-			//vérifier
-			
-	//stockage des informations		
-	printf("%d", nbplace);
-	resa.panier.nbplacesres = nbplace;
-	printf("%d", resa.panier.nbplacesres);	
+}		
+
+/*------------------------enregistrement des places--------------------------*/
+void resa_studio()
+{
+
+	struct parcour_client resa;
+	FILE *f1;
+	char nom_fichier[100] ="\0";
+	int i = 0, nbplace = NON_TROUVE, place, j, dispo = MAX_PL_STUDIO, maxdispo = 6	;
+	int places_studio[MAX_PL_STUDIO],test = 0;
+	char nom_fichier_temp[100];
+	
+	//on récupère la date et le spectacle via la super structure parcours
+
+	resa = parcour;
+	strcat(nom_fichier, resa.spec.nom);
+	strcat(nom_fichier,"_");
+	conv_date(resa.repre.date);
+	strcat(nom_fichier, resa.repre.date);
+	strcat(nom_fichier,".txt")	;
+
+	strcpy(nom_fichier_temp,nom_fichier);	//mémoire en locale
+	
+	printf("%d places\n", resa.panier.nbplacesres);
+	nbplace = resa.panier.nbplacesres;
+	
+	//Vérification de la disponibilité pour la date et le spectacle et 
+	if (fopen(nom_fichier,"r") != NULL)
+	{
+		printf("Suis-je ici ? \n")		; // à tej
+		test = 1						; //pour la suite
+		f1=fopen(nom_fichier,"r")		;
+		while (! feof(f1))
+		{
+		fscanf(f1, "%d", &place)		;
+		places_studio[i] = place		;
+			if (places_studio[i] == 0)
+			{
+			dispo = dispo - 1			; //fonctionnel restant places
+			}
+		i = i +1						;
+		}
+		fclose(f1)						;
+	}
+	else
+	{
+	 	printf("Suis-je là nouveau ? \n"); //à tej
+	 	printf("Places disponibles.\n")	;
+	 	test = 2; //pour la suite
+		f1=fopen("plstudio.txt","r")			; //ouverture du fichier type avec les places
+		while (! feof(f1))
+		{
+		fscanf(f1, "%d", &place)		;	
+		places_studio[i] = place		;
+		i = i + 1;
+		//pour un spectacle complet, retour au main, à améliorer si temps. 
+		if (dispo == 0)
+		{
+		printf("Le spectacle est complet, vous ne pouvez pas réserver à cette date.\n");
+		main();
+		}
+		}
+		fclose(f1);
+		dispo = MAX_PL_STUDIO			;
+	}
 	
 	printf("test = %d\n", test);
 	printf("nbplace = %d\n", nbplace); 
@@ -1454,9 +1288,9 @@ void resa_studio()
 		}
 	fclose(f1);
 	
-	printf("Votre souhait a bien été pris en compte.\n");
-	parcour = resa;
-	paiement();
+	printf("Votre souhait a bien été pris en compte.\n")	;
+	printf("Merci pour votre commande.\n")					;
+	main();
 }
 
 /*---------------------Paiement----------------------*/
@@ -1794,13 +1628,271 @@ void paiement()
 			{
 				printf("Saisie des informations du client\n");
 				printf("On prend les places dans le fichier\n");
+				resa_studio();
 				printf("On appelle ici la fonction\n");
 				printf("On dit merci pour la commande, bye\n");
 			}
 
 }//fin paiement			
 			
-/*			les prix
+
+/*----------------------Abonnement ---------------------*/
+
+void abonnement()
+{
+	printf("Hello World\n");
+}
+/*{
+	int rep = 0, rep1 = 3, i = 0, nbspecabo=0, cpt, nbspecrepre=0, repre=0, spectheatre = 0, trouve;
+	char comp[100], stock_date[100];
+	struct abonnement pabo;
+	FILE *f1;
+	struct piece date;
+	
+	
+	//1 seul fichier pour tout les clients il faut donc l'ouvrir
+	if (fopen("abonne.txt","r") != NULL)
+	{
+		i=0;
+		f1=fopen("abonne.txt","r"); //ouverture du fichier abonnnment pour renger dans le tab de strcut les abonné existant
+		while(! feof(f1))
+		{
+			fscanf(f1, "%s %s %d %s %d %s %d %s", pabo.client.nom, pabo.client.prenom, &pabo.client.numadresse, pabo.client.rueadresse, &pabo.client.codePostal, pabo.client.ville, &pabo.client.telephone, pabo.client.mail);
+			tab_abonne[i]= pabo;
+			i=i+1;
+		}
+		fclose(f1);
+		nbabonnement= i;
+	}
+	
+	while((rep != 1)&&(rep != 2))
+	{
+		printf("Vous souhaitez souscrire à un abonnement?\n");
+		printf("-1- oui\n");
+		printf("-2- non\n");
+		scanf("%d", &rep);
+	
+		if( rep==1)
+		{
+			while((rep1 < 4 )||(rep1>=nbspecglob))
+			{
+				printf("A combien de spectacle souhaitez vous vous abonner (4min)?\n");
+				scanf("%d", &rep1); //stock la va du nombre de spectacle voulu
+			}
+		}
+		else if (rep == 2)
+		{
+			main();
+		}
+		else
+		{
+			printf("Erreur, vous devez saisir 1 ou 2");
+		}
+	}
+	
+	printf("+---------------------+\n");
+	printf("|Bulletin d'abonnement|\n");
+	printf("+---------------------+\n");
+	
+	printf("Nom : ");
+	scanf("%s", abo.client.nom);
+	printf("\nPrenom : ");
+	scanf("%s", abo.client.prenom); 
+	printf("\nAdresse :\n");
+	printf("  Numero : ");
+	scanf("%d", &abo.client.numadresse);
+	printf("\n  Rue : ");
+	scanf("%s", abo.client.rueadresse);
+	printf("\n  Code Postal : ");
+	scanf("%d", &abo.client.codePostal);
+	printf("\n  Ville : ");
+	scanf("%s", abo.client.ville);
+	printf("\nTelephone : ");
+	scanf("%d", &abo.client.telephone);
+	printf("\nMail : ");
+	scanf("%s", abo.client.mail);
+	
+// selection des spectacles + ajout de LA_MER dans les specatcles
+	strcpy(date.date,"00/00/2016");
+	printf("1 spectacle obligatoire, La Mer ajoutee...\n");
+	strcpy(abo.tab_spec[0].nom,"LA_MER");
+	strcpy(abo.date[0].nom,"LA_MER");
+	strcpy(abo.tab_spec[0].salle,frichelieu);
+	
+	for (i = 0 ; i < nbspecglob; i++)
+	{
+		conv_maj(tab_program[i].nom);
+		if (strcmp("LA_MER",tab_program[i].nom) == 0)
+		{
+			printf("-%d-\n", spectheatre+1); 
+			
+			conv_aff(tab_program[i].nom);
+			printf("nom de la piece : %s\n", tab_program[i].nom)			; 
+			printf("salle: %s\n", tab_program[i].salle);
+    		printf("nom de l'auteur : %s\n", tab_program[i].auteur)	  		; 
+    		printf("nom metteur en scene : %s\n", tab_program[i].M_en_scene);
+    		printf("nom date de dà򬩢ut : %s\n", tab_program[i].date_debut)	;
+    		printf("nom date de fin : %s\n\n", tab_program[i].date_fin)  	;
+			
+			tab_indice_spec[spectheatre] = i; // range en valeur les indices des différents spectacles 
+			spectheatre = spectheatre +1;  
+    	}
+	}
+	nbspecabo = spectheatre;
+	
+	printf("Vous avez souhaitez vous abonner a %d spectacles",rep1);
+	for (i = 0 ; i < rep1; i++)
+	{
+		printf("\nSelectionnez le spectacle numero %d\n", i+1);
+		printf("Saisisez le numéro correspond au spectacle désiré : ");
+		scanf("%d", &rep);
+		strcpy(abo.tab_spec[i+1].nom,tab_program[tab_indice_spec[rep-1]].nom); // l'indice 0 de abo.tab_spec est déjà occupé par La Mer
+		strcpy(abo.tab_spec[i+1].salle,tab_program[tab_indice_spec[rep-1]].salle); //attention rep correspondant à l'indice qui sort la valeur sotck 
+	}													// dans tab_indice cette valeur est l'indice du spectacle correspondant dans tab_program
+	
+// affichage de tous les specatcles
+	printf("Vous avez selectionnez les spectacles suivant :\n");
+	for (i = 0 ; i < rep1; i++)
+	{
+		printf("-%d- %s", i+1, abo.tab_spec[i].nom);
+		strcpy(abo.date[i].nom,abo.tab_spec[i].nom);
+		conv_maj(abo.date[i].nom);
+	}
+	
+// affichage des representation pour chaque spectacle
+	
+	
+	for(cpt=0; cpt < rep1; cpt++)
+	{
+		printf("Selection de la date pour %s:\n", abo.tab_spec[cpt].nom);
+		strcpy(comp,abo.date[cpt].nom);
+		for ( i =0; i<nbrepreglob; i++)
+		{
+			if (strcmp(comp, tab_repre[i].nom) == 0)//afficher toutes les dates dispo correspondant au spectacle svʬectionnvɍ
+			{
+				if((strcmp(tab_repre[i].nom,date.date)) != 0) //exclusion des dates a 0
+				{
+					printf("%s %s\n", tab_repre[i].date, tab_repre[i].heure);
+			
+				repre = repre +1;
+				}	
+			}
+		}
+		nbspecrepre = repre;
+		printf("Veuillez saisir la date de votre choix (JJ/MM/AAAA) : \n");
+		scanf ("%s", stock_date);
+		
+		i = 0											;
+		while ((i<nbspecrepre)&&(trouve == 0))
+		{
+			if (strcmp(comp, tab_repre[i].nom) == 0)//afficher toutes les dates dispo correspondant au spectacle sélectionné				
+			{
+				if(((strcmp(tab_repre[i].nom,date.date)) != 0)&&((strcmp(stock_date,tab_repre[i].date) ==0)))//exclusion des dates a 0
+				{
+					strcpy(abo.date[cpt].date,tab_repre[i].date);
+					strcpy(abo.date[cpt].date,tab_repre[i].heure);
+					trouve = 1;
+				}
+			}
+			i = i+1	;
+		}
+				
+	}
+	
+// affichage de tous les specatcles + representation
+	printf("Vous avez selectionnez les spectacles et les dates suivant :\n");
+	for (i = 0 ; i < rep1; i++)
+	{
+		printf("-%d- %s", i+1, abo.date[i].nom);
+		printf("-%d- %s", i+1, abo.date[i].date);
+	}
+	
+// Réservation des places pour chaque spectacles 
+	nbplace_resa = 1; //(Ici c'est comme si on réservez pour 1 personne)
+	for(i=0; i < rep1; i++)
+	{
+		if(strcmp(abo.tab_spec[i].salle,frichelieu) ==0)
+		{
+			strcpy(parcour.spec.nom,abo.date[i].nom);
+			strcpy(parcour.spec.salle,abo.tab_spec[i].salle);
+			strcpy(parcour.repre.nom,parcour.spec.nom);
+			strcpy(parcour.repre.date,abo.date[i].date);
+			resa_richelieu ();
+			strcpy(abo.rich.categorie,parcour.tab_nb_rese[0].categorie);
+			strcpy(abo.rich.zone,parcour.tab_nb_rese[0].zone);
+			abo.rich.numpl = parcour.tab_nb_rese[0].numpl;
+			abo.rich.rangpl = parcour.tab_nb_rese[0].rangpl;
+		}
+		else if(strcmp(abo.tab_spec[i].salle,fstudio) ==0)
+		{
+			strcpy(parcour.spec.nom,abo.date[i].nom);
+			strcpy(parcour.spec.salle,abo.tab_spec[i].salle);
+			strcpy(parcour.repre.nom,parcour.spec.nom);
+			strcpy(parcour.repre.date,abo.date[i].date);
+			resa_studio();
+			// transférer les données de parcour dans abo avec les infos cnocernant la rézervation studio
+			
+		}
+	}
+
+// Affichage récap général de l'abonnement
+	printf("Récapitulatif abonnement :\n");
+	for (i = 0 ; i < rep1; i++)
+	{
+		printf("-%d- %s", i+1, abo.date[i].nom);
+		printf("-%d- %s", i+1, abo.tab_spec[i].salle);
+		printf("-%d- %s", i+1, abo.date[i].date);
+		printf("-%d- %s", i+1, abo.date[i].heure);
+		if(strcmp(abo.tab_spec[i].salle,frichelieu) ==0)
+		{
+			printf("-%d- categorie : %s, zone: %s, rang : %c numéro : %d", i, abo.rich.categorie, abo.rich.zone, abo.rich.rangpl, abo.rich.numpl);
+		}
+		
+	}
+// enregistrement des données dans le fichier
+// création id abonnement
+	
+}*/
+
+/*------------------------------Tarifs---------------------------------*/
+void tarifs()
+{
+
+	int choix = NON_TROUVE, i = 0, borne;
+	FILE *f1 	;
+	struct tarifs individuels;
+	
+	while (choix != 0)
+	{
+	printf("\nTarifs - Consultation\n")				;
+	printf("-1- Consulter nos tarifs\n")			;
+	printf("-O- Continuer\n")						;
+	printf("Choix : ");
+	scanf("%d", &choix);
+		switch(choix)
+		{
+		case 1: printf("Tarifs Individuels !\n");
+				f1=fopen("tarifs.txt","r");
+				while (! feof(f1))
+				{
+					fscanf(f1, "%s %s %c %s %d", individuels.nom, individuels.type_tarifs, &individuels.categorie, individuels.type_client, &individuels.prix);
+					tab_individuels[i] = individuels	;
+					conv_aff(tab_individuels[i].nom);
+					conv_aff(tab_individuels[i].type_tarifs);
+					conv_aff(tab_individuels[i].type_client);
+					i = i+1;
+				}
+				
+				fclose(f1);
+				borne = i;
+				printf("tarifs importés. borne : %d\n", borne); //test
+								
+				for (i = 0;i < borne;i++)
+				{
+				//printf("i = %d\n",i); test
+				conv_aff(frichelieu);
+				if (strcmp(tab_individuels[i].nom,tab_individuels[i-1].nom) != 0) //pour ne pas afficher 20 fois le nom des salles
+				{
 				printf("\n\nSalle %s\n",tab_individuels[i].nom);
 				}
 				//printf("%s ", tab_individuels[i].nom);  
@@ -1811,98 +1903,156 @@ void paiement()
 				}
 				printf("%35s", tab_individuels[i].type_client);
 				printf("%20d€\n", tab_individuels[i].prix);
-			
-			
-		
-		
-		
-			struct client
-    {
-     char 	titre[10]				;
-     char	nom[T_MAX_NOM]      ;
-     char	prenom[T_MAX_NOM]	;
-     int 	age					;	//attention en saisie
-     int 	numadresse			;
-     char  rueadresse[15]			;
-     int	codePostal			;
-     char	ville[10]				;
-     // char	pays[10]				;
-     int	telephone			;
-     char mail[30]				;
-     int	numabo              ;
-     int nbplacesres			; //faire attention en saisie. 
-    };
-    
-			printf("total = %d€\n", total);
+				}
+				conv_maj(frichelieu);
+				break;
+		case 0 :f1=fopen("tarifs.txt","r"); //on charge les tarifs en mémoire, pour le module de paiement, même sans consultation de l'utilisateur. 
+				while (! feof(f1))
+				{
+					fscanf(f1, "%s %s %c %s %d", individuels.nom, individuels.type_tarifs, &individuels.categorie, individuels.type_client, &individuels.prix);
+					tab_individuels[i] = individuels	;
+					conv_aff(tab_individuels[i].nom);
+					conv_aff(tab_individuels[i].type_tarifs);
+					conv_aff(tab_individuels[i].type_client);
+					i = i+1;
+				}
+				fclose(f1); 
+				printf("Quitter \n")		;
+				break;
+		default: printf("Choix erroné, veuillez recommencer.\n")		;
+				break;
+		}
+	}
 }
-		printf("mémo indice prix\n");
-		
-		printf("Richelieu\n");
-		//0 à 16
-		printf("Catégorie A\n");
-		printf("%d\n", tab_individuels[0].prix);
-		printf("%d\n", tab_individuels[6].prix);
-		
-		// b 7 à 12
-		printf("Catégorie B\n");
-		printf("%d\n", tab_individuels[7].prix);
-		printf("%d\n", tab_individuels[12].prix);
-		
-		// c 12 à 17
-		printf("Catégorie C\n");
-		printf("%d\n", tab_individuels[12].prix);
-		printf("%d\n", tab_individuels[17].prix);
-		
-		printf("Vieux-Colombier\n");
-		//17 à 22
-		printf("%d\n", tab_individuels[17].prix);
-		printf("%d\n", tab_individuels[22].prix);
-		
-		printf("Studio");
-		// 22 à 25
-		printf("%d\n", tab_individuels[22].prix); //plein tarif
-		printf("%d\n", tab_individuels[23].prix);	//
-		printf("%d\n", tab_individuels[24].prix);//
-		printf("%d\n", tab_individuels[25].prix); //chomeur
-		
-		printf("%d = nbplace", nbplace); 
-		
-		
-		
-		printf("Voici vos informations.\n");
-		printf("Votre réservation : \n");
-		printf("Dans notre salle %s\n", parcour.spec.salle);
-		conv_aff(resa.spec.nom);
-		printf("Pour %s\n", resa.spec.nom);
-		//conv_date(resa.repre.date);
-		printf("le %s\n", resa.repre.date);
-		printf("%d places\n", resa.panier.nbplacesres);	
-		
-	for (i = 0; i < nbplace ; i++)
-			{	
-			printf("spectateur %d : %d ans = ", i+1, tab_age[i]); //i+1 pour affichage et éviter un spectateur 0 
-				if (tab_age[i] >= 28)
-				{
-				tab_prix[i] = 31;
-				}
-				else
-				{
-				tab_prix[i] = 12;
-				}
-			printf("montant : %d\n", tab_prix[i]);
-			total = total + tab_prix[i]	;
-			}*/
-			
-		
+/*______________________________________________________________________________________*/
+/*______________________________________________________________________________________*/
+
 	
-
-
-
-
-
-/*----------------------Abonnement ---------------------*/
-
-void abonnement()
+/*-----------!charge uniquement - aucun affichage! la liste complète des spectales par theatre------------------------------*/
+void chargement_spectacle()
 {
-printf("Bidon\n");
+	struct spectacle representation ;	// recherche_programmation_theatre()
+	FILE *f1                        ;
+	int i=0				;
+ 
+	f1=fopen("spectacle.txt","r"); //param‚Äö√†√∂‚àö¬£tre d'appelle de la variable fichier
+	while(! feof(f1))
+    {
+    	fscanf(f1, "%s %s %s %s %s %s", representation.nom, representation.auteur, representation.M_en_scene, representation.date_debut, representation.date_fin, representation.salle);
+    	tab_program[i]=representation; 
+    		conv_aff(tab_program[i].nom)		;	 //Pour traiter de donn√©es sous la m√™me forme dans tout le pg
+		conv_aff(tab_program[i].auteur)		;
+		conv_aff(tab_program[i].M_en_scene)	;
+		i=i+1;
+	}
+	fclose(f1);
+	nbrepreglob = i; // nombre de pièces totales disponibles sur toute la comédie française
 }
+
+/*----------------chargement des représentations-------------*/
+void chargement_representation()
+{
+	struct piece representation ;// recherche_programmation_theatre()
+	FILE *f1                    ;
+	int i = 0					;
+ 
+	f1=fopen("representationchar.txt","r"); //parametre d'appelle de la variable fichier
+	while(! feof(f1))
+    {
+    	fscanf(f1, "%s %s %s", representation.nom, representation.date, representation.heure);
+    	tab_repre[i]=representation; 
+  
+		i=i+1;
+	}
+	nbspecglob = i;
+	fclose(f1);
+}
+
+/*----------chargement des place de Richelieu---------------*/
+void chargement_placesrichelieu()
+{
+	struct theatre richelieu ;// recherche_programmation_th√©√¢tre()
+	FILE *f1                        ;
+	int i=0							;
+ 
+	f1=fopen("prichelieu.txt","r"); //param√®tre d'appel de la variable fichier
+	while(! feof(f1))
+    {
+    	fscanf(f1, "%s %s %d %c", richelieu.categorie, richelieu.zone, &richelieu.numpl, &richelieu.rangpl);
+    	place_richelieu[i]=richelieu; //chargement des enregistrements dans le tableau de structure
+
+		i=i+1;
+	}
+	//printf("i= %d", i);
+	fclose(f1);
+	nbplacetot= i-1; // nombre de pi‚Äö√†√∂‚àö¬£ces totales disponibles sur toute la com‚Äö√†√∂‚àö‚Ä†die fran‚Äö√†√∂‚àö√ñaise
+}
+
+
+/*------convertisseurs_entree_fichier-----------------------------------*/
+void conv_maj(char tab[])
+{
+  int i, taille ;
+  
+  taille = strlen(tab);
+  for (i=0 ; i< taille ; i++)
+  {
+  	if(tab[i] == ' ')
+  	{
+  		tab[i] = '_';
+	}
+	else
+	{
+		tab[i] = toupper(tab[i]);
+	}
+    
+  }
+}
+
+/*------convertisseur_affichage_fichier--------------------*/
+void conv_aff(char tab[])
+{
+	int i, taille;
+	
+	taille = strlen(tab);
+	for (i=1; i<taille; i++)
+	{
+		if(tab[i] == '_')
+		{
+			tab[i] = ' ';
+			i++;
+		}
+		else
+		{
+		tab[i] = tolower(tab[i]);
+		}
+		
+	}
+}
+
+/*------convertisseur_date_pour_fichier--------------------*/
+void conv_date(char tab[])
+{
+	int i, taille;
+	
+	taille = strlen(tab);
+	for (i=1; i<taille; i++)
+	{
+		if(tab[i] == '/')
+		{
+			tab[i] = '^';
+			i++;
+		}
+	}
+}
+/*-----------initialisation tabelau----------*/
+void initialisation(int tab[])
+{
+	int i;
+	for (i=0; i<MAX_SPECTACLES; i++)
+	{
+		tab[i] =-1;
+	}
+	printf("tableau initialisé...\n");
+}
+
