@@ -5,3 +5,37 @@ struct abonnement{
 	struct theatre rich;
 	struct reserv_studio;
 };
+
+
+void abonnement()
+{
+	int rep=0, rep1=0;
+	
+	while((rep !=1)||(rep !=2))
+	{
+		printf("Vous souhaitez souscrire à un abonnement?\n");
+		printf("-1- oui\n");
+		printf("-2- non\n");
+		scanf("%d", &rep);
+	
+		if( rep==1)
+		{
+			while((rep1>=4)&&(rep1<=MAX_ABO))
+			{
+				printf("A combien de spectacle souhaitez vuos vous abonner (4min)?\n");
+				scan("%d", rep);
+			}
+		}
+		else if (rep ==2)
+		{
+			break;
+		}
+		else
+		{
+			printf("Erreur, vous devez saisir 1 ou 2");
+		}
+	}
+	
+	
+}
+
