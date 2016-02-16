@@ -1,0 +1,7 @@
+struct abonnement{
+	struct client client;
+	struct spectacle tab_spec[MAX_ABO];
+	struct piece date[2];
+	struct theatre rich;
+	struct reserv_studio;
+};
