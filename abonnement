@@ -8,7 +8,7 @@ struct abonnement{
 	struct spectacle tab_spec[MAX_ABO];
 	struct piece date[MAX_ABO];
 	struct theatre rich;
-	struct reserv_studio;
+	struct reserv_studio studio;
 };
 
 /*-----variable globale-----*/
@@ -87,7 +87,8 @@ void abonnement()
 	strcpy(date.date,"00/00/2016");
 	printf("1 spectacle obligatoire, La Mer ajoutee...\n");
 	abo.tab_spec[0].nom ="LA_MER";
-	abo.tab_spec[0].salle="RICHELIEU";
+	abo.date[0].nom ="LA_MER";
+	abo.tab_spec[0].salle=frichelieu;
 	
 	for (i = 0 ; i < nbspecglob; i++)
 	{
@@ -183,7 +184,32 @@ void abonnement()
 	nbplace_resa = 1; //(Ici c'est comme si on réservez pour 1 personne)
 	for(i=0; i < rep1; i++)
 	{
-		if(abo.
+		if(strcmp(abo.tab_spec[i].salle,frichelieu) ==0)
+		{
+			parcour.spec.nom = abo.date[i].nom;
+			parcour.spec.salle = abo.tab_spec[i].salle;
+			pacour.repre.nom = parcour.spec.nom;
+			pacour.repre.date = abo.date[i].date;
+			resa_richelieu ();
+			abo.theatre.categorie = pacour.tab_nb_rese[0].categorie;
+			abo.theatre.zone = pacour.tab_nb_rese[0].zone;
+			abo.theatre.numpl = pacour.tab_nb_rese[0].numpl;
+			abo.theatre.rangpl = pacour.tab_nb_rese[0].rangpl;
+		}
+		else if(strcmp(abo.tab_spec[i].salle,fstudio) ==0)
+		{
+			parcour.spec.nom = abo.date[i].nom;
+			parcour.spec.salle = abo.tab_spec[i].salle;
+			pacour.repre.nom = parcour.spec.nom;
+			pacour.repre.date = abo.date[i].date;
+			resa_studio();
+			// transferer les données de parcour dans abo avec les infos cnocernant la rézervation studio
+			
+		}
 	}
+
+// Affichage récap général de l'abonnement
+// enregistrement des données dans le fichier
+// création id abonnement
 	
 }
