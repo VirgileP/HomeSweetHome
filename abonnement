@@ -6,7 +6,7 @@ ET CHANGER DANS CHARGE LA MULE nbspecglob par NBREPREGLOB
 struct abonnement{
 	struct client client;
 	struct spectacle tab_spec[MAX_ABO];
-	struct piece date[2];
+	struct piece date[MAX_ABO];
 	struct theatre rich;
 	struct reserv_studio;
 };
@@ -125,6 +125,8 @@ void abonnement()
 	for (i = 0 ; i < rep1; i++)
 	{
 		printf("-%d- %s", i+1, abo.tab_spec[i].nom);
+		strcpy(abo.date[i].nom,abo.tab_spec[i].nom);
+		conv_maj(abo.date[i].nom);
 	}
 	
 // affichage des representation pour chaque spectacle
@@ -133,8 +135,7 @@ void abonnement()
 	for(cpt=0; cpt < rep1; cpt++)
 	{
 		printf("Selection de la date pour %s:\n", abo.tab_spec[cpt].nom);
-		conv_maj(abo.tab_spec[cpt].nom);
-		strcpy(comp,abo.tab_spec[cpt].nom);
+		strcpy(comp,abo.date[cpt].nom);
 		print
 		for ( i =0; i<nbrepreglob; i++)
 		{
@@ -166,7 +167,7 @@ void abonnement()
 		}
 		if(trouve)
 		{
-			strcpy(abo.tab_spec[cpt].date,stock_date);
+			strcpy(abo.date[cpt].date,stock_date);
 		}			
 	}
 	
@@ -174,10 +175,15 @@ void abonnement()
 	printf("Vous avez selectionnez les spectacles et les dates suivant :\n");
 	for (i = 0 ; i < rep1; i++)
 	{
-		printf("-%d- %s", i+1, abo.tab_spec[i].nom);
-		printf("-%d- %s", i+1, abo.tab_spec[i].date);
+		printf("-%d- %s", i+1, abo.date[i].nom);
+		printf("-%d- %s", i+1, abo.date[i].date);
 	}
 	
-// Réservation des places pour chaque spectacles (Ici c'est comme si on réservez pour 1 personne)
-		
+// Réservation des places pour chaque spectacles 
+	nbplace_resa = 1; //(Ici c'est comme si on réservez pour 1 personne)
+	for(i=0; i < rep1; i++)
+	{
+		if(abo.
+	}
+	
 }
