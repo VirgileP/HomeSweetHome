@@ -1,3 +1,8 @@
+/*----------------a ajouter dans les variables globale-------*/
+int nbrepreglob =0; // total de toutes les representation de toutes les pièces
+ET CHANGER DANS CHARGE LA MULE nbspecglob par NBREPREGLOB
+
+
 struct abonnement{
 	struct client client;
 	struct spectacle tab_spec[MAX_ABO];
