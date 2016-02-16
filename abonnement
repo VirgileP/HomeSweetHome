@@ -6,10 +6,29 @@ struct abonnement{
 	struct reserv_studio;
 };
 
+/*-----variable globale-----*/
+struct abonnement abo;
+struct abonnement tab_abonne[MAX_TITRE];
+int nbabonnement;
 
 void abonnement()
 {
-	int rep=0, rep1=0;
+	int rep=0, rep1=0, i=0, nbspecabo=0;
+	struct abonnement pabo
+	FILE *f1;
+	
+	
+	//1 seul fichier pour tout les clients il faut donc l'ouvrir
+	i=0;
+	f1=fopen("abonne.txt","r"); //ouverture du fichier abonnnment pour renger dans le tab de strcut les abonné existant
+	while(! feof(f1))
+    {
+    	fscanf(f1, "%s %s %d %s %d %s %d %s", pabo.client.nom, pabo.client.prenom, pabo.client.numadresse, pabo.client.rueadresse, pabo.client.codePostal, pabo.client.ville, pabo.client.telephone, pabo.client.mail);
+    	tab_abonne[i]= pabo
+		i=i+1;
+	}
+	fclose(f1);
+	nbabonnement= i;
 	
 	while((rep !=1)||(rep !=2))
 	{
@@ -22,8 +41,8 @@ void abonnement()
 		{
 			while((rep1>=4)&&(rep1<=MAX_ABO))
 			{
-				printf("A combien de spectacle souhaitez vuos vous abonner (4min)?\n");
-				scan("%d", rep);
+				printf("A combien de spectacle souhaitez vous vous abonner (4min)?\n");
+				scan("%d", rep1);
 			}
 		}
 		else if (rep ==2)
@@ -36,6 +55,65 @@ void abonnement()
 		}
 	}
 	
+	printf("+---------------------+\n");
+	printf("|Bulletin d'abonnement|\n");
+	printf("+---------------------+\n");
 	
-}
+	printf("Nom : ");
+	scanf("%s", abo.client.nom);
+	printf("\nPrenom : ");
+	scanf("%s", abo.client.prenom); 
+	printf("\nAdresse :\n");
+	printf("  Numero : ");
+	scanf("%d", abo.client.numadresse);
+	printf("\n  Rue : ");
+	scanf("%s", abo.client.rueadresse);
+	printf("\n  Code Postal : ");
+	scanf("%d", abo.client.codePostal);
+	printf("\n  Ville : ");
+	scanf("%s", abo.client.ville);
+	printf("\nTelephone : ");
+	scanf("%d", abo.client.telephone);
+	printf("\nMail : ");
+	scanf("%s", abo.client.mail);
+	
+// selection des spectacles + ajout de LA_MER dans les specatcles
+	printf("1 spectacle obligatoire, La Mer ajoutee...\n")
+	abo.tab_spec[0].nom ="LA_MER";
+	abo.tab_spec[0].salle="RICHELIEU";
+	
+	for (i = 0 ; i < nbspecglob; i++)
+	{
+		conv_maj(tab_program[i].nom);
+		if (strcmp("LA_MER",tab_program[i].nom) == 0)
+		{
+			printf("-%d-\n", spectheatre+1); 
+			
+			printf("nom de la piece : %s\n", tab_program[i].nom)			; 
+    		printf("nom de l'auteur : %s\n", tab_program[i].auteur)	  		; 
+    		printf("nom metteur en scene : %s\n", tab_program[i].M_en_scene);
+    		printf("nom date de dà򬩢ut : %s\n", tab_program[i].date_debut)	;
+    		printf("nom date de fin : %s\n\n", tab_program[i].date_fin)  	;
+			
+			tab_indice_spec[spectheatre] = i; // range en valeur les indices des différents spectacles 
+			spectheatre = spectheatre +1;  
+    	}
+	}
+	nbspecabo = spectheatre;
+	
+	printf("Vous avez souhaitez vous abonner a %d spectacles",rep1);
+	for (i = 0 ; i < rep1; i++)
+	{
+		printf("Selectionnez le spectacle numero %d", rep1+1);
+		
+	}
 
+// affichage de tous les specatcles
+
+// affichage des representation après selection spectacle
+
+//nombe de place reserver =1
+
+
+
+}
